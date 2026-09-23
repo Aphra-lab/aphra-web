@@ -31,6 +31,20 @@ export default tseslint.config(
     },
   },
 
+  // Worker sources
+  {
+    files: ['worker/**/*.ts'],
+    languageOptions: {
+      parserOptions: {
+        projectService: true,
+        tsconfigRootDir: import.meta.dirname,
+      },
+      globals: {
+        ...globals.serviceworker,
+      },
+    },
+  },
+
   // React plugins
   {
     files: ['src/**/*.{ts,tsx}'],
@@ -59,7 +73,7 @@ export default tseslint.config(
 
   // General rules for TypeScript files
   {
-    files: ['src/**/*.{ts,tsx}', 'tests/**/*.{ts,tsx}'],
+    files: ['src/**/*.{ts,tsx}', 'tests/**/*.{ts,tsx}', 'worker/**/*.ts'],
     rules: {
       'spaced-comment': [
         'error',
