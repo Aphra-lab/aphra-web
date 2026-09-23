@@ -61,16 +61,16 @@ Out of scope: see section 14.
 
 tskickstart answers, as environment variables for a non-interactive run:
 
-| Variable | Value |
-| --- | --- |
-| `PROJECT_TYPE` | `frontend` |
-| `LINTER` | `eslint` |
-| `LINT_OPTIONS` | `commitlint,secretlint` |
-| `VITEST_PRESET` | `coverage` |
-| `PLAYWRIGHT` | `1` |
-| `SETUP_PRECOMMIT` | `husky` |
-| `SETUP_CICD` | `1` |
-| `INCLUDE_AGENT_CREW` | `1` |
+| Variable             | Value                   |
+| -------------------- | ----------------------- |
+| `PROJECT_TYPE`       | `frontend`              |
+| `LINTER`             | `eslint`                |
+| `LINT_OPTIONS`       | `commitlint,secretlint` |
+| `VITEST_PRESET`      | `coverage`              |
+| `PLAYWRIGHT`         | `1`                     |
+| `SETUP_PRECOMMIT`    | `husky`                 |
+| `SETUP_CICD`         | `1`                     |
+| `INCLUDE_AGENT_CREW` | `1`                     |
 
 Result: React, Vite, Tailwind CSS 4, React Router, TanStack Query, ESLint and Prettier, Vitest, Playwright, Husky, commitlint, secretlint.
 
@@ -123,13 +123,13 @@ Settings: Always Use HTTPS on. Single Redirect: `www.aphralab.com/*` to `https:/
 
 `aphralab.fr` and `aphralab.online` zones:
 
-| Name | Type | Content | Proxy |
-| --- | --- | --- | --- |
-| `@` | A | `192.0.2.0` (placeholder) | yes |
-| `www` | A | `192.0.2.0` (placeholder) | yes |
-| `@` | MX | `0 .` (null MX, RFC 7505) | DNS only |
-| `@` | TXT | `v=spf1 -all` | DNS only |
-| `_dmarc` | TXT | `v=DMARC1; p=reject` | DNS only |
+| Name     | Type | Content                   | Proxy    |
+| -------- | ---- | ------------------------- | -------- |
+| `@`      | A    | `192.0.2.0` (placeholder) | yes      |
+| `www`    | A    | `192.0.2.0` (placeholder) | yes      |
+| `@`      | MX   | `0 .` (null MX, RFC 7505) | DNS only |
+| `@`      | TXT  | `v=spf1 -all`             | DNS only |
+| `_dmarc` | TXT  | `v=DMARC1; p=reject`      | DNS only |
 
 Settings: Always Use HTTPS on. Single Redirect: every request to `https://aphralab.com` with the same path, 301, query string kept.
 

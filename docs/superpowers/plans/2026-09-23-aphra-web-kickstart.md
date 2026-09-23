@@ -85,9 +85,11 @@ cd ~/src/aphra-web && git switch dev && git pull --ff-only
 ### Task 1: Publish the repository
 
 **Files:**
+
 - Commit: `docs/superpowers/plans/2026-09-23-aphra-web-kickstart.md` (this plan)
 
 **Interfaces:**
+
 - Consumes: local repository `~/src/aphra-web` with `main` (`f44247d chore: initial commit`) and `dev` (spec commit).
 - Produces: `github.com/Aphra-lab/aphra-web`, public, default branch `dev`, remote `origin`.
 
@@ -160,6 +162,7 @@ Expected: `"visibility":"PUBLIC"`, `"defaultBranchRef":{"name":"dev"}`, squash a
 **Files:** none (Cloudflare state).
 
 **Interfaces:**
+
 - Produces: zones `aphralab.com`, `aphralab.fr`, `aphralab.online` in account `507e2472cb49976c013eb085e2d4a004`, each with two assigned nameservers (used in Task 3). Records, redirects and settings exactly as spec 5.1, except that `aphralab.com` keeps the Hostinger mail records until Task 14.
 
 All code below runs through `mcp__cloudflare__execute` with `account_id` = `507e2472cb49976c013eb085e2d4a004`. If a call fails with an authorization error, the owner re-authenticates the `cloudflare` server in `/mcp` and grants Zone, DNS, Zone Settings, Single Redirect and Workers permissions for the Aphra account. API-created zones get no automatic DNS scan, so no Hostinger parking record is imported.
@@ -170,11 +173,19 @@ All code below runs through `mcp__cloudflare__execute` with `account_id` = `507e
 async () => {
   const out = {};
   for (const name of ['aphralab.com', 'aphralab.fr', 'aphralab.online']) {
-    const r = await cloudflare.request({ method: 'POST', path: '/zones', body: { name, account: { id: accountId }, type: 'full' } });
-    out[name] = { id: r.result.id, status: r.result.status, name_servers: r.result.name_servers };
+    const r = await cloudflare.request({
+      method: 'POST',
+      path: '/zones',
+      body: { name, account: { id: accountId }, type: 'full' },
+    });
+    out[name] = {
+      id: r.result.id,
+      status: r.result.status,
+      name_servers: r.result.name_servers,
+    };
   }
   return out;
-}
+};
 ```
 
 Expected: three zones with `status: "pending"` and two `*.ns.cloudflare.com` nameservers each. Task 3 Step 1 reads the nameservers again, so nothing has to be copied.
@@ -183,14 +194,26 @@ Expected: three zones with `status: "pending"` and two `*.ns.cloudflare.com` nam
 
 ```js
 async () => {
-  const zones = (await cloudflare.request({ method: 'GET', path: '/zones', query: { 'account.id': accountId } })).result;
+  const zones = (
+    await cloudflare.request({
+      method: 'GET',
+      path: '/zones',
+      query: { 'account.id': accountId },
+    })
+  ).result;
   const out = {};
   for (const z of zones) {
-    const recs = (await cloudflare.request({ method: 'GET', path: `/zones/${z.id}/dns_records`, query: { per_page: 100 } })).result;
+    const recs = (
+      await cloudflare.request({
+        method: 'GET',
+        path: `/zones/${z.id}/dns_records`,
+        query: { per_page: 100 },
+      })
+    ).result;
     out[z.name] = recs.map((r) => `${r.type} ${r.name} ${r.content}`);
   }
   return out;
-}
+};
 ```
 
 Expected: an empty list for each zone. If a list is not empty, stop and report it: the next steps assume empty zones.
@@ -199,26 +222,82 @@ Expected: an empty list for each zone. If a list is not empty, stop and report i
 
 ```js
 async () => {
-  const zone = (await cloudflare.request({ method: 'GET', path: '/zones', query: { name: 'aphralab.com' } })).result[0];
+  const zone = (
+    await cloudflare.request({
+      method: 'GET',
+      path: '/zones',
+      query: { name: 'aphralab.com' },
+    })
+  ).result[0];
   const records = [
-    { type: 'MX', name: 'aphralab.com', content: 'mx1.hostinger.com', priority: 5 },
-    { type: 'MX', name: 'aphralab.com', content: 'mx2.hostinger.com', priority: 10 },
-    { type: 'TXT', name: 'aphralab.com', content: '"v=spf1 include:_spf.mail.hostinger.com ~all"' },
+    {
+      type: 'MX',
+      name: 'aphralab.com',
+      content: 'mx1.hostinger.com',
+      priority: 5,
+    },
+    {
+      type: 'MX',
+      name: 'aphralab.com',
+      content: 'mx2.hostinger.com',
+      priority: 10,
+    },
+    {
+      type: 'TXT',
+      name: 'aphralab.com',
+      content: '"v=spf1 include:_spf.mail.hostinger.com ~all"',
+    },
     { type: 'TXT', name: '_dmarc.aphralab.com', content: '"v=DMARC1; p=none"' },
-    { type: 'CNAME', name: 'hostingermail-a._domainkey.aphralab.com', content: 'hostingermail-a.dkim.mail.hostinger.com', proxied: false },
-    { type: 'CNAME', name: 'hostingermail-b._domainkey.aphralab.com', content: 'hostingermail-b.dkim.mail.hostinger.com', proxied: false },
-    { type: 'CNAME', name: 'hostingermail-c._domainkey.aphralab.com', content: 'hostingermail-c.dkim.mail.hostinger.com', proxied: false },
-    { type: 'CNAME', name: 'autodiscover.aphralab.com', content: 'autodiscover.mail.hostinger.com', proxied: false },
-    { type: 'CNAME', name: 'autoconfig.aphralab.com', content: 'autoconfig.mail.hostinger.com', proxied: false },
-    { type: 'A', name: 'www.aphralab.com', content: '192.0.2.0', proxied: true },
+    {
+      type: 'CNAME',
+      name: 'hostingermail-a._domainkey.aphralab.com',
+      content: 'hostingermail-a.dkim.mail.hostinger.com',
+      proxied: false,
+    },
+    {
+      type: 'CNAME',
+      name: 'hostingermail-b._domainkey.aphralab.com',
+      content: 'hostingermail-b.dkim.mail.hostinger.com',
+      proxied: false,
+    },
+    {
+      type: 'CNAME',
+      name: 'hostingermail-c._domainkey.aphralab.com',
+      content: 'hostingermail-c.dkim.mail.hostinger.com',
+      proxied: false,
+    },
+    {
+      type: 'CNAME',
+      name: 'autodiscover.aphralab.com',
+      content: 'autodiscover.mail.hostinger.com',
+      proxied: false,
+    },
+    {
+      type: 'CNAME',
+      name: 'autoconfig.aphralab.com',
+      content: 'autoconfig.mail.hostinger.com',
+      proxied: false,
+    },
+    {
+      type: 'A',
+      name: 'www.aphralab.com',
+      content: '192.0.2.0',
+      proxied: true,
+    },
   ];
   const created = [];
   for (const rec of records) {
-    const r = await cloudflare.request({ method: 'POST', path: `/zones/${zone.id}/dns_records`, body: { ttl: 1, ...rec } });
-    created.push(`${r.result.type} ${r.result.name} ${r.result.content} proxied=${r.result.proxied}`);
+    const r = await cloudflare.request({
+      method: 'POST',
+      path: `/zones/${zone.id}/dns_records`,
+      body: { ttl: 1, ...rec },
+    });
+    created.push(
+      `${r.result.type} ${r.result.name} ${r.result.content} proxied=${r.result.proxied}`,
+    );
   }
   return created;
-}
+};
 ```
 
 Expected: 10 records. The apex gets no web record here: the production deploy (Task 12) creates it as a Worker custom domain. Between zone activation and Task 12, `aphralab.com` does not answer HTTP; acceptable because the site has no traffic yet.
@@ -229,7 +308,13 @@ Expected: 10 records. The apex gets no web record here: the production deploy (T
 async () => {
   const out = {};
   for (const name of ['aphralab.fr', 'aphralab.online']) {
-    const zone = (await cloudflare.request({ method: 'GET', path: '/zones', query: { name } })).result[0];
+    const zone = (
+      await cloudflare.request({
+        method: 'GET',
+        path: '/zones',
+        query: { name },
+      })
+    ).result[0];
     const records = [
       { type: 'A', name, content: '192.0.2.0', proxied: true },
       { type: 'A', name: `www.${name}`, content: '192.0.2.0', proxied: true },
@@ -239,12 +324,16 @@ async () => {
     ];
     out[name] = [];
     for (const rec of records) {
-      const r = await cloudflare.request({ method: 'POST', path: `/zones/${zone.id}/dns_records`, body: { ttl: 1, ...rec } });
+      const r = await cloudflare.request({
+        method: 'POST',
+        path: `/zones/${zone.id}/dns_records`,
+        body: { ttl: 1, ...rec },
+      });
       out[name].push(`${r.result.type} ${r.result.name} ${r.result.content}`);
     }
   }
   return out;
-}
+};
 ```
 
 Expected: 5 records per zone. Cloudflare does not document whether a null MX (content `.`) is accepted. If the API refuses it, create the four other records, delete the three MX assertion lines of the `refuses mail` test in Task 7 Step 4, and report it in the Task 7-8 pull request.
@@ -253,7 +342,13 @@ Expected: 5 records per zone. Cloudflare does not document whether a null MX (co
 
 ```js
 async () => {
-  const zones = (await cloudflare.request({ method: 'GET', path: '/zones', query: { 'account.id': accountId } })).result;
+  const zones = (
+    await cloudflare.request({
+      method: 'GET',
+      path: '/zones',
+      query: { 'account.id': accountId },
+    })
+  ).result;
   const id = Object.fromEntries(zones.map((z) => [z.name, z.id]));
   const redirect = (description, expression) => ({
     description,
@@ -264,23 +359,48 @@ async () => {
       from_value: {
         status_code: 301,
         preserve_query_string: true,
-        target_url: { expression: 'concat("https://aphralab.com", http.request.uri.path)' },
+        target_url: {
+          expression: 'concat("https://aphralab.com", http.request.uri.path)',
+        },
       },
     },
   });
   const rules = {
-    'aphralab.com': [redirect('www to apex', '(http.host eq "www.aphralab.com")')],
-    'aphralab.fr': [redirect('aphralab.fr to aphralab.com', '(http.host in {"aphralab.fr" "www.aphralab.fr"})')],
-    'aphralab.online': [redirect('aphralab.online to aphralab.com', '(http.host in {"aphralab.online" "www.aphralab.online"})')],
+    'aphralab.com': [
+      redirect('www to apex', '(http.host eq "www.aphralab.com")'),
+    ],
+    'aphralab.fr': [
+      redirect(
+        'aphralab.fr to aphralab.com',
+        '(http.host in {"aphralab.fr" "www.aphralab.fr"})',
+      ),
+    ],
+    'aphralab.online': [
+      redirect(
+        'aphralab.online to aphralab.com',
+        '(http.host in {"aphralab.online" "www.aphralab.online"})',
+      ),
+    ],
   };
   const out = {};
   for (const name of Object.keys(rules)) {
-    const https = await cloudflare.request({ method: 'PATCH', path: `/zones/${id[name]}/settings/always_use_https`, body: { value: 'on' } });
-    const rs = await cloudflare.request({ method: 'PUT', path: `/zones/${id[name]}/rulesets/phases/http_request_dynamic_redirect/entrypoint`, body: { rules: rules[name] } });
-    out[name] = { always_use_https: https.result.value, redirects: rs.result.rules.map((r) => r.expression) };
+    const https = await cloudflare.request({
+      method: 'PATCH',
+      path: `/zones/${id[name]}/settings/always_use_https`,
+      body: { value: 'on' },
+    });
+    const rs = await cloudflare.request({
+      method: 'PUT',
+      path: `/zones/${id[name]}/rulesets/phases/http_request_dynamic_redirect/entrypoint`,
+      body: { rules: rules[name] },
+    });
+    out[name] = {
+      always_use_https: https.result.value,
+      redirects: rs.result.rules.map((r) => r.expression),
+    };
   }
   return out;
-}
+};
 ```
 
 Expected: `always_use_https: "on"` and one redirect rule per zone. The PUT replaces the whole rule list of the phase and creates the entry point ruleset when it is missing.
@@ -297,6 +417,7 @@ Run the Step 2 code again. Expected:
 **Files:** none (registrar and Cloudflare state).
 
 **Interfaces:**
+
 - Consumes: the nameservers from Task 2 Step 1.
 - Produces: three active zones; public DNS answered by Cloudflare; mail still delivered by Hostinger.
 
@@ -304,9 +425,19 @@ Run the Step 2 code again. Expected:
 
 ```js
 async () => {
-  const zones = (await cloudflare.request({ method: 'GET', path: '/zones', query: { 'account.id': accountId } })).result;
-  return zones.map((z) => ({ name: z.name, status: z.status, name_servers: z.name_servers }));
-}
+  const zones = (
+    await cloudflare.request({
+      method: 'GET',
+      path: '/zones',
+      query: { 'account.id': accountId },
+    })
+  ).result;
+  return zones.map((z) => ({
+    name: z.name,
+    status: z.status,
+    name_servers: z.name_servers,
+  }));
+};
 ```
 
 - [ ] **Step 2: Switch the nameservers at Hostinger**
@@ -333,16 +464,29 @@ Run with `allowed_domains: ["cloudflare-dns.com"]`. Expected: the two Cloudflare
 
 ```js
 async () => {
-  const zones = (await cloudflare.request({ method: 'GET', path: '/zones', query: { 'account.id': accountId } })).result;
+  const zones = (
+    await cloudflare.request({
+      method: 'GET',
+      path: '/zones',
+      query: { 'account.id': accountId },
+    })
+  ).result;
   const out = {};
   for (const z of zones) {
     if (z.status !== 'active') {
-      try { await cloudflare.request({ method: 'PUT', path: `/zones/${z.id}/activation_check` }); } catch (e) { out[`${z.name}_check`] = String(e.message || e); }
+      try {
+        await cloudflare.request({
+          method: 'PUT',
+          path: `/zones/${z.id}/activation_check`,
+        });
+      } catch (e) {
+        out[`${z.name}_check`] = String(e.message || e);
+      }
     }
     out[z.name] = z.status;
   }
   return out;
-}
+};
 ```
 
 Repeat every 15 minutes until the three zones show `active`. On the Free plan Cloudflare accepts one activation check per zone per hour; the code catches the refusal and still reports the status. Expected: `active` for all three (usually within an hour, at most 24 hours).
@@ -387,10 +531,12 @@ From an outside address, send a mail to `contact@aphralab.com`; reply from the H
 **Branch:** `chore/scaffold-tskickstart` · **PR title:** `chore: scaffold frontend with tskickstart 1.10.0`
 
 **Files:**
+
 - Create: the generator output (`.claude/`, `.github/workflows/ci.yml`, `.husky/`, `.editorconfig`, `.gitignore`, `.mcp.json`, `.nvmrc`, `.prettierignore`, `.secretlintrc.json`, `AGENTS.md`, `CLAUDE.md`, `README.md`, `commitlint.config.js`, `eslint.config.js`, `index.html`, `package.json`, `package-lock.json`, `playwright.config.ts`, `prettier.config.js`, `src/`, `tests/`, `tsconfig*.json`, `vite.config.ts`, `vitest.config.ts`)
 - Modify: `.nvmrc`, `package.json`, `commitlint.config.js`, `.gitignore`, `.github/workflows/ci.yml`, `README.md`
 
 **Interfaces:**
+
 - Produces: scripts `format`, `format:check`, `lint`, `typecheck`, `secretlint`, `test`, `test:coverage`, `test:e2e`, `build`, `dev`, `preview`, `check`; working Husky hooks; Node 24.
 
 - [ ] **Step 1: Create the branch**
@@ -453,13 +599,13 @@ Replace the content of `.nvmrc` with:
 In `.github/workflows/ci.yml`, replace:
 
 ```yaml
-          node-version: 22
+node-version: 22
 ```
 
 with:
 
 ```yaml
-          node-version-file: .nvmrc
+node-version-file: .nvmrc
 ```
 
 In `README.md`, replace the two prerequisite lines:
@@ -478,6 +624,7 @@ with:
 - [ ] **Step 7: Package metadata and scripts**
 
 In `package.json`:
+
 - set `"description": "Aphra website"`;
 - delete `"main": "index.js"`;
 - set `"license": "UNLICENSED"` and add `"private": true` (brand content, not open source; npm never publishes it);
@@ -496,19 +643,39 @@ const Configuration = {
     'body-max-line-length': [2, 'always', 250],
     'scope-case': [2, 'always', ['lower-case', 'upper-case']],
     'subject-empty': [2, 'never'],
-    'subject-case': [2, 'never', ['sentence-case', 'start-case', 'pascal-case', 'upper-case']],
+    'subject-case': [
+      2,
+      'never',
+      ['sentence-case', 'start-case', 'pascal-case', 'upper-case'],
+    ],
     'type-case': [2, 'always', 'lower-case'],
     'type-empty': [2, 'never'],
-    'type-enum': [2, 'always', ['feat', 'fix', 'docs', 'style', 'refactor', 'perf', 'test', 'build', 'ci', 'chore', 'revert']],
+    'type-enum': [
+      2,
+      'always',
+      [
+        'feat',
+        'fix',
+        'docs',
+        'style',
+        'refactor',
+        'perf',
+        'test',
+        'build',
+        'ci',
+        'chore',
+        'revert',
+      ],
+    ],
   },
-  helpUrl: 'https://github.com/conventional-changelog/commitlint/#what-is-commitlint',
+  helpUrl:
+    'https://github.com/conventional-changelog/commitlint/#what-is-commitlint',
 };
 
 export default Configuration;
 ```
 
-Run: `printf 'chore: probe\n' | npx --no -- commitlint; echo "exit=$?"` → Expected: `exit=0`.
-Run: `printf 'Probe\n' | npx --no -- commitlint; echo "exit=$?"` → Expected: errors `type-empty` and `subject-empty`, `exit=1`.
+Run: `printf 'chore: probe\n' | npx --no -- commitlint; echo "exit=$?"` → Expected: `exit=0`. Run: `printf 'Probe\n' | npx --no -- commitlint; echo "exit=$?"` → Expected: errors `type-empty` and `subject-empty`, `exit=1`.
 
 - [ ] **Step 9: Ignore local Cloudflare state**
 
@@ -544,12 +711,14 @@ Write `$TMPDIR/pr-scaffold.md`:
 
 ```md
 ## Summary
+
 - Frontend scaffold from `@jeportie/create-tskickstart@1.10.0`: React, Vite, Tailwind CSS 4, React Router, TanStack Query, Vitest, Playwright, Husky, commitlint, secretlint, agent crew.
 - Node.js 24 in `.nvmrc`, CI and README.
 - `package.json`: `private: true`, license `UNLICENSED`, `engines.node >=24`, `format:check` script, quoted secretlint glob.
 - `commitlint.config.js` no longer loads `commitlint-plugin-cspell`. The generator installs that plugin only with cspell, so every commit failed without it.
 
 ## Verification
+
 - `format:check`, `lint`, `typecheck`, `secretlint`, `test:coverage`, `build`: pass.
 - `test:e2e` (Chromium): 3 passed.
 ```
@@ -566,10 +735,12 @@ gh pr create --base dev --head chore/scaffold-tskickstart --title "chore: scaffo
 **Branch:** `feat/cloudflare-worker` · **PR title:** `feat: serve the site from a cloudflare worker`
 
 **Files:**
+
 - Create: `worker/index.ts`, `wrangler.jsonc`, `tsconfig.worker.json`, `tests/unit/worker.unit.test.ts`, `tests/unit/wrangler-config.unit.test.ts`, `tests/e2e/api.spec.ts`
 - Modify: `package.json` (devDependencies), `vite.config.ts`, `tsconfig.json`, `eslint.config.js`, `vitest.config.ts`
 
 **Interfaces:**
+
 - Produces:
   - `worker/index.ts`: `export interface Env { ENVIRONMENT: string; COMMIT_SHA: string }` and a default export `{ fetch(request: Request, env: Env): Response }`.
   - `GET /api/health` → 200 `{ "status": "ok", "environment": env.ENVIRONMENT, "commit": env.COMMIT_SHA }`, `content-type: application/json; charset=utf-8`.
@@ -595,15 +766,22 @@ Create `tests/unit/worker.unit.test.ts`:
 import worker from '../../worker/index';
 
 const env = { ENVIRONMENT: 'test', COMMIT_SHA: 'abc123' };
-const call = (path: string, init?: RequestInit) => worker.fetch(new Request(`https://aphralab.com${path}`, init), env);
+const call = (path: string, init?: RequestInit) =>
+  worker.fetch(new Request(`https://aphralab.com${path}`, init), env);
 
 describe('worker', () => {
   it('reports health with the environment and the commit', async () => {
     const response = call('/api/health');
 
     expect(response.status).toBe(200);
-    expect(response.headers.get('content-type')).toBe('application/json; charset=utf-8');
-    expect(await response.json()).toEqual({ status: 'ok', environment: 'test', commit: 'abc123' });
+    expect(response.headers.get('content-type')).toBe(
+      'application/json; charset=utf-8',
+    );
+    expect(await response.json()).toEqual({
+      status: 'ok',
+      environment: 'test',
+      commit: 'abc123',
+    });
   });
 
   it('accepts HEAD on the health check', () => {
@@ -618,20 +796,24 @@ describe('worker', () => {
     expect(await response.json()).toEqual({ error: 'method_not_allowed' });
   });
 
-  it.each(['/api', '/api/', '/api/nope'])('answers %s with a JSON 404', async (path) => {
-    const response = call(path);
+  it.each(['/api', '/api/', '/api/nope'])(
+    'answers %s with a JSON 404',
+    async (path) => {
+      const response = call(path);
 
-    expect(response.status).toBe(404);
-    expect(response.headers.get('content-type')).toBe('application/json; charset=utf-8');
-    expect(await response.json()).toEqual({ error: 'not_found' });
-  });
+      expect(response.status).toBe(404);
+      expect(response.headers.get('content-type')).toBe(
+        'application/json; charset=utf-8',
+      );
+      expect(await response.json()).toEqual({ error: 'not_found' });
+    },
+  );
 });
 ```
 
 - [ ] **Step 3: Run it to see it fail**
 
-Run: `npx vitest --run tests/unit/worker.unit.test.ts`
-Expected: FAIL, `Failed to resolve import "../../worker/index"`.
+Run: `npx vitest --run tests/unit/worker.unit.test.ts` Expected: FAIL, `Failed to resolve import "../../worker/index"`.
 
 - [ ] **Step 4: Implement the Worker**
 
@@ -643,7 +825,11 @@ export interface Env {
   COMMIT_SHA: string;
 }
 
-const json = (body: unknown, status = 200, headers: Record<string, string> = {}) =>
+const json = (
+  body: unknown,
+  status = 200,
+  headers: Record<string, string> = {},
+) =>
   new Response(JSON.stringify(body), {
     status,
     headers: { 'content-type': 'application/json; charset=utf-8', ...headers },
@@ -655,9 +841,15 @@ export default {
 
     if (pathname === '/api/health') {
       if (request.method !== 'GET' && request.method !== 'HEAD') {
-        return json({ error: 'method_not_allowed' }, 405, { allow: 'GET, HEAD' });
+        return json({ error: 'method_not_allowed' }, 405, {
+          allow: 'GET, HEAD',
+        });
       }
-      return json({ status: 'ok', environment: env.ENVIRONMENT, commit: env.COMMIT_SHA });
+      return json({
+        status: 'ok',
+        environment: env.ENVIRONMENT,
+        commit: env.COMMIT_SHA,
+      });
     }
 
     return json({ error: 'not_found' }, 404);
@@ -667,8 +859,7 @@ export default {
 
 - [ ] **Step 5: Run it to see it pass**
 
-Run: `npx vitest --run tests/unit/worker.unit.test.ts`
-Expected: PASS, 6 tests.
+Run: `npx vitest --run tests/unit/worker.unit.test.ts` Expected: PASS, 6 tests.
 
 - [ ] **Step 6: Write the failing config test**
 
@@ -700,13 +891,21 @@ describe('wrangler.jsonc', () => {
   it('serves production on the apex domain only', () => {
     expect(config.name).toBe('aphra-web');
     expect(config.workers_dev).toBe(false);
-    expect(config.routes).toEqual([{ pattern: 'aphralab.com', custom_domain: true }]);
-    expect(config.vars).toEqual({ ENVIRONMENT: 'production', COMMIT_SHA: 'local' });
+    expect(config.routes).toEqual([
+      { pattern: 'aphralab.com', custom_domain: true },
+    ]);
+    expect(config.vars).toEqual({
+      ENVIRONMENT: 'production',
+      COMMIT_SHA: 'local',
+    });
   });
 
   it('runs the Worker first for the API and falls back to the app', () => {
     expect(config.main).toBe('./worker/index.ts');
-    expect(config.assets).toEqual({ not_found_handling: 'single-page-application', run_worker_first: ['/api', '/api/*'] });
+    expect(config.assets).toEqual({
+      not_found_handling: 'single-page-application',
+      run_worker_first: ['/api', '/api/*'],
+    });
   });
 
   it('keeps staging off the production domain', () => {
@@ -714,13 +913,15 @@ describe('wrangler.jsonc', () => {
 
     expect(staging?.workers_dev).toBe(true);
     expect(staging?.routes).toEqual([]);
-    expect(staging?.vars).toEqual({ ENVIRONMENT: 'staging', COMMIT_SHA: 'local' });
+    expect(staging?.vars).toEqual({
+      ENVIRONMENT: 'staging',
+      COMMIT_SHA: 'local',
+    });
   });
 });
 ```
 
-Run: `npx vitest --run tests/unit/wrangler-config.unit.test.ts`
-Expected: FAIL, `ENOENT: no such file or directory, open 'wrangler.jsonc'`.
+Run: `npx vitest --run tests/unit/wrangler-config.unit.test.ts` Expected: FAIL, `ENOENT: no such file or directory, open 'wrangler.jsonc'`.
 
 - [ ] **Step 7: Write `wrangler.jsonc`**
 
@@ -732,7 +933,7 @@ Expected: FAIL, `ENOENT: no such file or directory, open 'wrangler.jsonc'`.
   "compatibility_date": "2026-09-23",
   "assets": {
     "not_found_handling": "single-page-application",
-    "run_worker_first": ["/api", "/api/*"]
+    "run_worker_first": ["/api", "/api/*"],
   },
   "workers_dev": false,
   "routes": [{ "pattern": "aphralab.com", "custom_domain": true }],
@@ -741,16 +942,15 @@ Expected: FAIL, `ENOENT: no such file or directory, open 'wrangler.jsonc'`.
     "staging": {
       "workers_dev": true,
       "routes": [],
-      "vars": { "ENVIRONMENT": "staging", "COMMIT_SHA": "local" }
-    }
-  }
+      "vars": { "ENVIRONMENT": "staging", "COMMIT_SHA": "local" },
+    },
+  },
 }
 ```
 
 The `run_worker_first` array form needs Wrangler 4.20.0 or later and `@cloudflare/vite-plugin` 1.7.0 or later. `vars` is not inherited, so each environment sets both values. `routes` is inherited, so staging overrides it with an empty list; Step 12 checks the resolved result.
 
-Run: `npx vitest --run tests/unit/wrangler-config.unit.test.ts`
-Expected: PASS, 3 tests.
+Run: `npx vitest --run tests/unit/wrangler-config.unit.test.ts` Expected: PASS, 3 tests.
 
 - [ ] **Step 8: Write the failing E2E test**
 
@@ -764,16 +964,26 @@ test.describe('API', () => {
     const response = await request.get('/api/health');
 
     expect(response.status()).toBe(200);
-    expect(response.headers()['content-type']).toBe('application/json; charset=utf-8');
-    expect(await response.json()).toEqual({ status: 'ok', environment: 'production', commit: 'local' });
+    expect(response.headers()['content-type']).toBe(
+      'application/json; charset=utf-8',
+    );
+    expect(await response.json()).toEqual({
+      status: 'ok',
+      environment: 'production',
+      commit: 'local',
+    });
   });
 
-  test('answers unknown API paths with JSON, not the page', async ({ request }) => {
+  test('answers unknown API paths with JSON, not the page', async ({
+    request,
+  }) => {
     for (const path of ['/api', '/api/nope']) {
       const response = await request.get(path);
 
       expect(response.status()).toBe(404);
-      expect(response.headers()['content-type']).toBe('application/json; charset=utf-8');
+      expect(response.headers()['content-type']).toBe(
+        'application/json; charset=utf-8',
+      );
     }
   });
 });
@@ -781,8 +991,7 @@ test.describe('API', () => {
 
 The local preview uses the top-level (production) config, so `environment` is `production` and `commit` is `local`.
 
-Run: `npm run test:e2e -- --project=chromium tests/e2e/api.spec.ts` (outside the sandbox)
-Expected: FAIL: without the plugin, `vite preview` answers `/api/health` with the HTML page (`text/html`).
+Run: `npm run test:e2e -- --project=chromium tests/e2e/api.spec.ts` (outside the sandbox) Expected: FAIL: without the plugin, `vite preview` answers `/api/health` with the HTML page (`text/html`).
 
 - [ ] **Step 9: Wire the plugin and the Worker TypeScript project**
 
@@ -872,8 +1081,7 @@ In `vitest.config.ts`, change the coverage `include` to:
 
 - [ ] **Step 10: Run the E2E test to see it pass**
 
-Run: `npm run test:e2e -- --project=chromium tests/e2e/api.spec.ts`
-Expected: PASS, 2 tests.
+Run: `npm run test:e2e -- --project=chromium tests/e2e/api.spec.ts` Expected: PASS, 2 tests.
 
 - [ ] **Step 11: Run the gates**
 
@@ -893,6 +1101,7 @@ npm run build >/dev/null
 ```
 
 Expected:
+
 - production build: `"name": "aphra-web"`, `"workers_dev": false`, the `aphralab.com` custom domain route, `ENVIRONMENT` `production`;
 - staging build: `"name": "aphra-web-staging"`, `"workers_dev": true`, `routes` empty or absent, `ENVIRONMENT` `staging`;
 - dry run (on the staging build): `COMMIT_SHA` listed with `"abc123"`, so the deploy-time `--var` applies to the plugin output.
@@ -911,11 +1120,13 @@ Write `$TMPDIR/pr-worker.md`:
 
 ```md
 ## Summary
+
 - One Cloudflare Worker serves the Vite build as static assets with the single-page-application fallback and runs first for `/api` and `/api/*`.
 - `GET /api/health` returns `{ status, environment, commit }`. Other methods get 405, other `/api` paths get a JSON 404.
 - `wrangler.jsonc`: production `aphra-web` on `aphralab.com`; `env.staging` (`aphra-web-staging`) on `workers.dev` only, with `routes` overridden to an empty list.
 
 ## Verification
+
 - Vitest: Worker handler and `wrangler.jsonc` structure.
 - Playwright: `/api/health` and JSON 404 through `vite preview`, which runs the Worker.
 - `format:check`, `lint`, `typecheck`, `secretlint`, `build`: pass.
@@ -932,11 +1143,13 @@ gh pr create --base dev --head feat/cloudflare-worker --title "feat: serve the s
 **Branch:** `feat/hello-page` · **PR title:** `feat: add the aphra hello page`
 
 **Files:**
+
 - Create: `src/pages/Home.tsx`, `public/aphra-hello.jpg`, `brand/mock-hello-2026-09-23.jpg`, `docs/guides/brand.md`, `tests/unit/Home.unit.test.tsx`, `tests/e2e/home.spec.ts`
 - Modify: `src/App.tsx`, `index.html`, `tests/unit/App.unit.test.tsx`, `tests/integration/App.int.test.tsx`, `README.md`
 - Delete: `src/Welcome.tsx`, `src/assets/react.svg`, `src/assets/tailwind.svg`, `src/assets/vite.svg`, `tests/e2e/welcome.spec.ts`
 
 **Interfaces:**
+
 - Consumes: the Worker from Task 5 (the E2E suite still runs `/api` tests).
 - Produces: `src/pages/Home.tsx` default export `Home`; the image at `/aphra-hello.jpg`; `index.html` with `lang="fr"`, title `Aphra`, `og:image` `https://aphralab.com/aphra-hello.jpg`.
 
@@ -963,7 +1176,8 @@ import Home from '../../src/pages/Home';
 
 const ALT =
   "Aphra. Bienvenue, voici le site internet d'Aphra. Marque de boisson de dégustation fabriquée à l'aide d'une technique de clarification artisanale. Notre numéro de téléphone : 06 24 51 14 04. Notre mail est : contact@aphralab.com";
-const WARNING = "L'abus d'alcool est dangereux pour la santé, à consommer avec modération.";
+const WARNING =
+  "L'abus d'alcool est dangereux pour la santé, à consommer avec modération.";
 
 describe('Home', () => {
   it('shows the mock image with its full text as alternative text', () => {
@@ -1023,8 +1237,12 @@ describe('App integration', () => {
   it('renders the full hello page through the router', () => {
     render(<App />);
 
-    expect(screen.getByRole('img', { name: /contact@aphralab\.com/ })).toBeInTheDocument();
-    expect(screen.getByText(/abus d'alcool est dangereux pour la santé/)).toBeInTheDocument();
+    expect(
+      screen.getByRole('img', { name: /contact@aphralab\.com/ }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/abus d'alcool est dangereux pour la santé/),
+    ).toBeInTheDocument();
     expect(window.location.pathname).toBe('/');
   });
 });
@@ -1032,8 +1250,7 @@ describe('App integration', () => {
 
 The test renders `App`, not `src/main.tsx`: `main.tsx` mounts into `#root` as soon as it is imported and throws when `#root` is missing.
 
-Run: `npx vitest --run tests/unit tests/integration`
-Expected: FAIL, `Failed to resolve import "../../src/pages/Home"`.
+Run: `npx vitest --run tests/unit tests/integration` Expected: FAIL, `Failed to resolve import "../../src/pages/Home"`.
 
 - [ ] **Step 3: Implement the page and the routes**
 
@@ -1042,13 +1259,22 @@ Create `src/pages/Home.tsx`:
 ```tsx
 const IMAGE_TEXT =
   "Aphra. Bienvenue, voici le site internet d'Aphra. Marque de boisson de dégustation fabriquée à l'aide d'une technique de clarification artisanale. Notre numéro de téléphone : 06 24 51 14 04. Notre mail est : contact@aphralab.com";
-const HEALTH_WARNING = "L'abus d'alcool est dangereux pour la santé, à consommer avec modération.";
+const HEALTH_WARNING =
+  "L'abus d'alcool est dangereux pour la santé, à consommer avec modération.";
 
 export default function Home() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center gap-6 bg-[#fcfcf2] p-4">
-      <img src="/aphra-hello.jpg" width={1004} height={650} alt={IMAGE_TEXT} className="h-auto w-full max-w-[1004px]" />
-      <p className="text-center font-mono text-sm text-neutral-800">{HEALTH_WARNING}</p>
+      <img
+        src="/aphra-hello.jpg"
+        width={1004}
+        height={650}
+        alt={IMAGE_TEXT}
+        className="h-auto w-full max-w-[1004px]"
+      />
+      <p className="text-center font-mono text-sm text-neutral-800">
+        {HEALTH_WARNING}
+      </p>
     </main>
   );
 }
@@ -1083,8 +1309,7 @@ git rm -q src/Welcome.tsx src/assets/react.svg src/assets/tailwind.svg src/asset
 
 - [ ] **Step 4: Run the tests to see them pass**
 
-Run: `npx vitest --run tests/unit tests/integration`
-Expected: PASS (Home 2, App routes 2, App integration 1, Worker 6, wrangler config 3).
+Run: `npx vitest --run tests/unit tests/integration` Expected: PASS (Home 2, App routes 2, App integration 1, Worker 6, wrangler config 3).
 
 - [ ] **Step 5: Document metadata**
 
@@ -1097,12 +1322,18 @@ Replace `index.html` with:
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Aphra</title>
-    <meta name="description" content="Aphra, marque de boisson de dégustation fabriquée à l'aide d'une technique de clarification artisanale." />
+    <meta
+      name="description"
+      content="Aphra, marque de boisson de dégustation fabriquée à l'aide d'une technique de clarification artisanale."
+    />
     <meta name="theme-color" content="#fcfcf2" />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://aphralab.com/" />
     <meta property="og:title" content="Aphra" />
-    <meta property="og:description" content="Marque de boisson de dégustation fabriquée à l'aide d'une technique de clarification artisanale." />
+    <meta
+      property="og:description"
+      content="Marque de boisson de dégustation fabriquée à l'aide d'une technique de clarification artisanale."
+    />
     <meta property="og:image" content="https://aphralab.com/aphra-hello.jpg" />
     <meta property="og:image:width" content="1004" />
     <meta property="og:image:height" content="650" />
@@ -1121,10 +1352,13 @@ Create `tests/e2e/home.spec.ts`:
 ```ts
 import { expect, test } from '@playwright/test';
 
-const WARNING = "L'abus d'alcool est dangereux pour la santé, à consommer avec modération.";
+const WARNING =
+  "L'abus d'alcool est dangereux pour la santé, à consommer avec modération.";
 
 test.describe('Home page', () => {
-  test('shows the mock image and the health warning in French', async ({ page }) => {
+  test('shows the mock image and the health warning in French', async ({
+    page,
+  }) => {
     await page.goto('/');
 
     await expect(page).toHaveTitle('Aphra');
@@ -1132,7 +1366,13 @@ test.describe('Home page', () => {
     const image = page.getByRole('img', { name: /contact@aphralab\.com/ });
     await expect(image).toBeVisible();
     await expect
-      .poll(() => image.evaluate((img: HTMLImageElement) => [img.complete, img.naturalWidth, img.naturalHeight]))
+      .poll(() =>
+        image.evaluate((img: HTMLImageElement) => [
+          img.complete,
+          img.naturalWidth,
+          img.naturalHeight,
+        ]),
+      )
       .toEqual([true, 1004, 650]);
     await expect(page.getByText(WARNING)).toBeVisible();
   });
@@ -1149,21 +1389,32 @@ test.describe('Home page', () => {
     await page.setViewportSize({ width: 375, height: 812 });
     await page.goto('/');
 
-    await expect(page.getByRole('img', { name: /contact@aphralab\.com/ })).toBeVisible();
-    expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(0);
+    await expect(
+      page.getByRole('img', { name: /contact@aphralab\.com/ }),
+    ).toBeVisible();
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth - window.innerWidth,
+      ),
+    ).toBeLessThanOrEqual(0);
   });
 
   test('declares the link preview metadata', async ({ page }) => {
     await page.goto('/');
 
-    await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', 'https://aphralab.com/aphra-hello.jpg');
-    await expect(page.locator('meta[property="og:title"]')).toHaveAttribute('content', 'Aphra');
+    await expect(page.locator('meta[property="og:image"]')).toHaveAttribute(
+      'content',
+      'https://aphralab.com/aphra-hello.jpg',
+    );
+    await expect(page.locator('meta[property="og:title"]')).toHaveAttribute(
+      'content',
+      'Aphra',
+    );
   });
 });
 ```
 
-Run: `npm run test:e2e` (outside the sandbox)
-Expected: PASS in the three browsers (home 4, API 2).
+Run: `npm run test:e2e` (outside the sandbox) Expected: PASS in the three browsers (home 4, API 2).
 
 - [ ] **Step 7: Brand guide and README intro**
 
@@ -1222,12 +1473,14 @@ Write `$TMPDIR/pr-hello.md`:
 
 ```md
 ## Summary
+
 - Hello page: the brand mock image as-is (`public/aphra-hello.jpg`, 1004x650) with its full text as alternative text, and the loi Évin health warning under it.
 - `index.html`: `lang="fr"`, title, description, link preview metadata. The broken `/vite.svg` favicon link is gone.
 - Unknown paths redirect to `/` inside the app.
 - `brand/` and `docs/guides/brand.md` hold the brand reference for Claude Design. The tskickstart demo files are removed.
 
 ## Verification
+
 - Vitest: page content and routes.
 - Playwright (Chromium, Firefox, WebKit): image fully loaded at 1004x650, warning visible, unknown path, 375 px screen without horizontal scroll, link preview metadata.
 ```
@@ -1243,10 +1496,12 @@ gh pr create --base dev --head feat/hello-page --title "feat: add the aphra hell
 **Branch:** `support/ci-pipeline` (shared with Task 8) · **PR title:** `ci: add the delivery pipeline and smoke tests`
 
 **Files:**
+
 - Create: `playwright.smoke.config.ts`, `tests/smoke/site.spec.ts`, `tests/smoke/services.spec.ts`, `tests/smoke/support/dns.ts`, `tests/smoke/support/mail.ts`
 - Modify: `package.json` (script `test:smoke`), `vitest.config.ts` (exclude), `tsconfig.test.json` (Node types)
 
 **Interfaces:**
+
 - Consumes: deployed URLs; environment variables `SMOKE_BASE_URL` (required), `EXPECTED_ENVIRONMENT` (`production` or `staging`), `EXPECTED_COMMIT` (optional), `MAIL_PROVIDER` (`hostinger` or `google`, default `google`).
 - Produces: `npm run test:smoke` with tags `@site` and `@services` (used by Task 8 workflows).
 
@@ -1263,13 +1518,21 @@ Create `playwright.smoke.config.ts`:
 import { defineConfig, devices } from '@playwright/test';
 
 const baseURL = process.env.SMOKE_BASE_URL;
-if (!baseURL) throw new Error('SMOKE_BASE_URL is required, for example https://aphralab.com');
+if (!baseURL)
+  throw new Error(
+    'SMOKE_BASE_URL is required, for example https://aphralab.com',
+  );
 
 export default defineConfig({
   testDir: './tests/smoke',
   fullyParallel: true,
   retries: process.env.CI ? 2 : 0,
-  reporter: process.env.CI ? [['list'], ['html', { open: 'never', outputFolder: 'playwright-report-smoke' }]] : 'list',
+  reporter: process.env.CI
+    ? [
+        ['list'],
+        ['html', { open: 'never', outputFolder: 'playwright-report-smoke' }],
+      ]
+    : 'list',
   use: { baseURL, trace: 'retain-on-failure' },
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
 });
@@ -1303,7 +1566,8 @@ import { Resolver } from 'node:dns/promises';
 const resolver = new Resolver();
 resolver.setServers(['1.1.1.1', '8.8.8.8']);
 
-export const txt = async (name: string) => (await resolver.resolveTxt(name)).map((chunks) => chunks.join(''));
+export const txt = async (name: string) =>
+  (await resolver.resolveTxt(name)).map((chunks) => chunks.join(''));
 export const mx = (name: string) => resolver.resolveMx(name);
 export const ns = (name: string) => resolver.resolveNs(name);
 export const cname = (name: string) => resolver.resolveCname(name);
@@ -1317,23 +1581,34 @@ export type MailProvider = 'hostinger' | 'google';
 interface MailExpectation {
   mx: string[];
   spfInclude: string;
-  dkim: { name: string; kind: 'cname'; target: string } | { name: string; kind: 'txt'; prefix: string };
+  dkim:
+    | { name: string; kind: 'cname'; target: string }
+    | { name: string; kind: 'txt'; prefix: string };
 }
 
 export const MAIL: Record<MailProvider, MailExpectation> = {
   hostinger: {
     mx: ['mx1.hostinger.com', 'mx2.hostinger.com'],
     spfInclude: 'include:_spf.mail.hostinger.com',
-    dkim: { name: 'hostingermail-a._domainkey.aphralab.com', kind: 'cname', target: 'hostingermail-a.dkim.mail.hostinger.com' },
+    dkim: {
+      name: 'hostingermail-a._domainkey.aphralab.com',
+      kind: 'cname',
+      target: 'hostingermail-a.dkim.mail.hostinger.com',
+    },
   },
   google: {
     mx: ['smtp.google.com'],
     spfInclude: 'include:_spf.google.com',
-    dkim: { name: 'google._domainkey.aphralab.com', kind: 'txt', prefix: 'v=DKIM1;' },
+    dkim: {
+      name: 'google._domainkey.aphralab.com',
+      kind: 'txt',
+      prefix: 'v=DKIM1;',
+    },
   },
 };
 
-export const mailProvider = (process.env.MAIL_PROVIDER ?? 'google') as MailProvider;
+export const mailProvider = (process.env.MAIL_PROVIDER ??
+  'google') as MailProvider;
 ```
 
 - [ ] **Step 3: `@site` tests**
@@ -1352,7 +1627,11 @@ test.describe('site', { tag: '@site' }, () => {
     const response = await request.get('/api/health');
 
     expect(response.status()).toBe(200);
-    const body = (await response.json()) as { status: string; environment: string; commit: string };
+    const body = (await response.json()) as {
+      status: string;
+      environment: string;
+      commit: string;
+    };
     expect(body.status).toBe('ok');
     if (expectedEnvironment) expect(body.environment).toBe(expectedEnvironment);
     if (expectedCommit) expect(body.commit).toBe(expectedCommit);
@@ -1370,10 +1649,15 @@ test.describe('site', { tag: '@site' }, () => {
 
   test('link preview image is served', async ({ request }) => {
     const html = await (await request.get('/')).text();
-    const ogImage = /<meta property="og:image" content="([^"]+)"/.exec(html)?.[1];
+    const ogImage = /<meta property="og:image" content="([^"]+)"/.exec(
+      html,
+    )?.[1];
     expect(ogImage).toBe('https://aphralab.com/aphra-hello.jpg');
 
-    const imageUrl = expectedEnvironment === 'production' && ogImage ? ogImage : '/aphra-hello.jpg';
+    const imageUrl =
+      expectedEnvironment === 'production' && ogImage
+        ? ogImage
+        : '/aphra-hello.jpg';
     const image = await request.get(imageUrl);
     expect(image.status()).toBe(200);
     expect(image.headers()['content-type']).toBe('image/jpeg');
@@ -1381,7 +1665,10 @@ test.describe('site', { tag: '@site' }, () => {
 });
 
 test.describe('redirects', { tag: '@site' }, () => {
-  test.skip(expectedEnvironment !== 'production', 'domain redirects exist in production only');
+  test.skip(
+    expectedEnvironment !== 'production',
+    'domain redirects exist in production only',
+  );
 
   const sources = [
     'http://aphralab.com/visite?source=test',
@@ -1394,7 +1681,9 @@ test.describe('redirects', { tag: '@site' }, () => {
   ];
 
   for (const source of sources) {
-    test(`${source} lands on the apex with the same path and query`, async ({ request }) => {
+    test(`${source} lands on the apex with the same path and query`, async ({
+      request,
+    }) => {
       const first = await request.get(source, { maxRedirects: 0 });
       expect(first.status()).toBe(301);
 
@@ -1425,50 +1714,75 @@ test.describe('registrar', { tag: '@services' }, () => {
       const servers = await ns(domain);
 
       expect(servers.length).toBeGreaterThanOrEqual(2);
-      for (const server of servers) expect(server).toMatch(/\.ns\.cloudflare\.com$/);
+      for (const server of servers)
+        expect(server).toMatch(/\.ns\.cloudflare\.com$/);
     });
 
-    test(`${domain} stays registered for more than 30 days`, async ({ request }) => {
+    test(`${domain} stays registered for more than 30 days`, async ({
+      request,
+    }) => {
       const response = await request.get(`https://rdap.org/domain/${domain}`);
       expect(response.status()).toBe(200);
 
-      const data = (await response.json()) as { events?: { eventAction: string; eventDate: string }[] };
-      const expiry = data.events?.find((event) => event.eventAction === 'expiration')?.eventDate;
+      const data = (await response.json()) as {
+        events?: { eventAction: string; eventDate: string }[];
+      };
+      const expiry = data.events?.find(
+        (event) => event.eventAction === 'expiration',
+      )?.eventDate;
       expect(expiry, `no expiration event for ${domain}`).toBeTruthy();
-      expect((Date.parse(expiry ?? '') - Date.now()) / 86_400_000).toBeGreaterThan(30);
+      expect(
+        (Date.parse(expiry ?? '') - Date.now()) / 86_400_000,
+      ).toBeGreaterThan(30);
     });
   }
 });
 
-test.describe(`mail for aphralab.com (${mailProvider})`, { tag: '@services' }, () => {
-  const expected = MAIL[mailProvider];
+test.describe(
+  `mail for aphralab.com (${mailProvider})`,
+  { tag: '@services' },
+  () => {
+    const expected = MAIL[mailProvider];
 
-  test('MX records point to the provider', async () => {
-    const hosts = (await mx('aphralab.com')).map((record) => record.exchange).sort();
+    test('MX records point to the provider', async () => {
+      const hosts = (await mx('aphralab.com'))
+        .map((record) => record.exchange)
+        .sort();
 
-    expect(hosts).toEqual([...expected.mx].sort());
-  });
+      expect(hosts).toEqual([...expected.mx].sort());
+    });
 
-  test('SPF includes the provider', async () => {
-    const spf = (await txt('aphralab.com')).filter((record) => record.startsWith('v=spf1'));
+    test('SPF includes the provider', async () => {
+      const spf = (await txt('aphralab.com')).filter((record) =>
+        record.startsWith('v=spf1'),
+      );
 
-    expect(spf).toHaveLength(1);
-    expect(spf[0]).toContain(expected.spfInclude);
-  });
+      expect(spf).toHaveLength(1);
+      expect(spf[0]).toContain(expected.spfInclude);
+    });
 
-  test('DKIM key is published', async () => {
-    const { dkim } = expected;
-    if (dkim.kind === 'cname') {
-      expect(await cname(dkim.name)).toEqual([dkim.target]);
-    } else {
-      expect((await txt(dkim.name)).some((record) => record.startsWith(dkim.prefix))).toBe(true);
-    }
-  });
+    test('DKIM key is published', async () => {
+      const { dkim } = expected;
+      if (dkim.kind === 'cname') {
+        expect(await cname(dkim.name)).toEqual([dkim.target]);
+      } else {
+        expect(
+          (await txt(dkim.name)).some((record) =>
+            record.startsWith(dkim.prefix),
+          ),
+        ).toBe(true);
+      }
+    });
 
-  test('DMARC policy exists', async () => {
-    expect((await txt('_dmarc.aphralab.com')).some((record) => record.startsWith('v=DMARC1'))).toBe(true);
-  });
-});
+    test('DMARC policy exists', async () => {
+      expect(
+        (await txt('_dmarc.aphralab.com')).some((record) =>
+          record.startsWith('v=DMARC1'),
+        ),
+      ).toBe(true);
+    });
+  },
+);
 
 test.describe('domains without mail', { tag: '@services' }, () => {
   for (const domain of ['aphralab.fr', 'aphralab.online']) {
@@ -1527,11 +1841,13 @@ git commit -m "test: add smoke tests for the site and its services"
 **Branch:** `support/ci-pipeline` (continues Task 7)
 
 **Files:**
+
 - Modify: `.github/workflows/ci.yml` (replaced)
 - Create: `.github/workflows/pr-title.yml`, `.github/workflows/smoke.yml`, `.github/rulesets/protect-dev-and-main.json`, `release.config.mjs`
 - Modify: `package.json` (devDependencies for semantic-release)
 
 **Interfaces:**
+
 - Consumes: `npm run build`, `npm run test:e2e`, `npm run test:smoke` (Tasks 4 to 7); secrets and variables from Task 9: `CLOUDFLARE_API_TOKEN` (environment secret), `CLOUDFLARE_ACCOUNT_ID`, `MAIL_PROVIDER` (repository variables).
 - Produces: required check names `checks`, `e2e`, `pr-title` (used by Task 11); environments `staging` and `production` (used by Task 9).
 
@@ -1551,7 +1867,10 @@ export default {
   branches: ['main'],
   plugins: [
     ['@semantic-release/commit-analyzer', { preset: 'conventionalcommits' }],
-    ['@semantic-release/release-notes-generator', { preset: 'conventionalcommits' }],
+    [
+      '@semantic-release/release-notes-generator',
+      { preset: 'conventionalcommits' },
+    ],
     '@semantic-release/github',
   ],
 };
@@ -1776,7 +2095,10 @@ Scheduled workflows run on the default branch (`dev`); they test production.
   "enforcement": "active",
   "bypass_actors": [],
   "conditions": {
-    "ref_name": { "include": ["refs/heads/dev", "refs/heads/main"], "exclude": [] }
+    "ref_name": {
+      "include": ["refs/heads/dev", "refs/heads/main"],
+      "exclude": []
+    }
   },
   "rules": [
     { "type": "deletion" },
@@ -1831,6 +2153,7 @@ Write `$TMPDIR/pr-ci.md`:
 
 ```md
 ## Summary
+
 - `ci.yml`: `checks` (format check, lint, typecheck, secretlint, Vitest with coverage, build) and `e2e` (Playwright, three browsers).
 - `pr-title.yml`: commitlint on the pull request title, also when the title is edited.
 - `.github/rulesets/protect-dev-and-main.json`: branch rules for `dev` and `main`, applied after the merge.
@@ -1840,6 +2163,7 @@ Write `$TMPDIR/pr-ci.md`:
 - Smoke tests: `@site` (health commit, Cloudflare headers, link preview image, redirects with path and query) and `@services` (Cloudflare delegation, domain expiry, mail records per `MAIL_PROVIDER`, no-mail domains).
 
 ## Verification
+
 - `@site` against a local preview fails on the Cloudflare check, as expected without Cloudflare.
 - `@services` against the live DNS passes with `MAIL_PROVIDER=hostinger`.
 - `semantic-release --dry-run`: config loads; no release outside `main`.
@@ -1864,6 +2188,7 @@ Expected: `checks`, `e2e` and `pr-title` pass on the pull request.
 **Files:** none (Cloudflare and GitHub state).
 
 **Interfaces:**
+
 - Produces: `aphralab.workers.dev`; GitHub environments `staging` (branch `dev`) and `production` (branch `main`) each holding `CLOUDFLARE_API_TOKEN`; repository variables `CLOUDFLARE_ACCOUNT_ID` and `MAIL_PROVIDER=hostinger`.
 
 - [ ] **Step 1: Create the `workers.dev` subdomain**
@@ -1872,9 +2197,13 @@ Through `mcp__cloudflare__execute`:
 
 ```js
 async () => {
-  const r = await cloudflare.request({ method: 'PUT', path: `/accounts/${accountId}/workers/subdomain`, body: { subdomain: 'aphralab' } });
+  const r = await cloudflare.request({
+    method: 'PUT',
+    path: `/accounts/${accountId}/workers/subdomain`,
+    body: { subdomain: 'aphralab' },
+  });
   return r.result;
-}
+};
 ```
 
 Expected: `{ "subdomain": "aphralab" }`. The API has no availability check: a taken name comes back as a 4xx error. If the name is taken, use `aphra-lab` and replace `aphralab.workers.dev` with `aphra-lab.workers.dev` in `.github/workflows/ci.yml`, `README.md` and the spec in a `chore/` pull request.
@@ -1906,6 +2235,7 @@ gh variable list -R Aphra-lab/aphra-web
 - [ ] **Step 4 (owner): Create the API token and store it**
 
 In the Cloudflare dashboard, as Super Administrator of the Aphra account: **Manage Account → Account API Tokens → Create Token** (direct link: https://dash.cloudflare.com/?to=/:account/api-tokens). Custom token named `github-actions-aphra-web`, with:
+
 - Workers: role **Admin** at the Workers product scope, not "Specified Workers" (custom domains do not support per-Worker roles yet). Admin is needed once, to create `aphra-web` and `aphra-web-staging`;
 - Zone: **Workers Routes → Write**, zone `aphralab.com` only.
 
@@ -1980,9 +2310,11 @@ Write `$TMPDIR/pr-release.md`:
 
 ```md
 ## Summary
+
 First production release: tskickstart scaffold, Cloudflare Worker, hello page, pipeline and smoke tests.
 
 ## Merge
+
 Merge commit, not squash: semantic-release reads each commit from `dev`.
 ```
 
@@ -2042,10 +2374,25 @@ Expected: the job passes. If it fails on permissions, restore **Workers Admin** 
 
 ```js
 async () => {
-  const zone = (await cloudflare.request({ method: 'GET', path: '/zones', query: { name: 'aphralab.com' } })).result[0];
-  const r = await cloudflare.request({ method: 'POST', path: `/zones/${zone.id}/dns_records`, body: { type: 'TXT', name: 'aphralab.com', content: '"google-site-verification=<value from Step 1>"', ttl: 1 } });
+  const zone = (
+    await cloudflare.request({
+      method: 'GET',
+      path: '/zones',
+      query: { name: 'aphralab.com' },
+    })
+  ).result[0];
+  const r = await cloudflare.request({
+    method: 'POST',
+    path: `/zones/${zone.id}/dns_records`,
+    body: {
+      type: 'TXT',
+      name: 'aphralab.com',
+      content: '"google-site-verification=<value from Step 1>"',
+      ttl: 1,
+    },
+  });
   return `${r.result.type} ${r.result.name} ${r.result.content}`;
-}
+};
 ```
 
 The `<value from Step 1>` part is the exact string the owner pasted.
@@ -2059,24 +2406,60 @@ The `<value from Step 1>` part is the exact string the owner pasted.
 
 ```js
 async () => {
-  const zone = (await cloudflare.request({ method: 'GET', path: '/zones', query: { name: 'aphralab.com' } })).result[0];
+  const zone = (
+    await cloudflare.request({
+      method: 'GET',
+      path: '/zones',
+      query: { name: 'aphralab.com' },
+    })
+  ).result[0];
   const base = `/zones/${zone.id}/dns_records`;
-  const list = (await cloudflare.request({ method: 'GET', path: base, query: { per_page: 100 } })).result;
+  const list = (
+    await cloudflare.request({
+      method: 'GET',
+      path: base,
+      query: { per_page: 100 },
+    })
+  ).result;
   const log = [];
-  await cloudflare.request({ method: 'POST', path: base, body: { type: 'MX', name: 'aphralab.com', content: 'smtp.google.com', priority: 1, ttl: 1 } });
+  await cloudflare.request({
+    method: 'POST',
+    path: base,
+    body: {
+      type: 'MX',
+      name: 'aphralab.com',
+      content: 'smtp.google.com',
+      priority: 1,
+      ttl: 1,
+    },
+  });
   log.push('added MX 1 smtp.google.com');
-  const spf = list.find((r) => r.type === 'TXT' && r.name === 'aphralab.com' && r.content.includes('v=spf1'));
-  await cloudflare.request({ method: 'PATCH', path: `${base}/${spf.id}`, body: { content: '"v=spf1 include:_spf.google.com ~all"' } });
+  const spf = list.find(
+    (r) =>
+      r.type === 'TXT' &&
+      r.name === 'aphralab.com' &&
+      r.content.includes('v=spf1'),
+  );
+  await cloudflare.request({
+    method: 'PATCH',
+    path: `${base}/${spf.id}`,
+    body: { content: '"v=spf1 include:_spf.google.com ~all"' },
+  });
   log.push('SPF now includes _spf.google.com');
-  const hostinger = list.filter((r) =>
-    (r.type === 'MX' && r.content.endsWith('hostinger.com')) ||
-    (r.type === 'CNAME' && (r.name.includes('._domainkey.') || r.name.startsWith('autodiscover.') || r.name.startsWith('autoconfig.'))));
+  const hostinger = list.filter(
+    (r) =>
+      (r.type === 'MX' && r.content.endsWith('hostinger.com')) ||
+      (r.type === 'CNAME' &&
+        (r.name.includes('._domainkey.') ||
+          r.name.startsWith('autodiscover.') ||
+          r.name.startsWith('autoconfig.'))),
+  );
   for (const r of hostinger) {
     await cloudflare.request({ method: 'DELETE', path: `${base}/${r.id}` });
     log.push(`deleted ${r.type} ${r.name} ${r.content}`);
   }
   return log;
-}
+};
 ```
 
 Expected: 1 addition, 1 SPF update, 7 deletions (2 MX, 3 DKIM, autodiscover, autoconfig). The values follow Google's documentation: MX `smtp.google.com` priority 1, SPF `v=spf1 include:_spf.google.com ~all`. Then the owner clicks **Activate Gmail** in the Google Admin console; Google allows up to 72 hours.
@@ -2089,10 +2472,25 @@ Google Admin console → **Apps → Google Workspace → Gmail → Authenticate 
 
 ```js
 async () => {
-  const zone = (await cloudflare.request({ method: 'GET', path: '/zones', query: { name: 'aphralab.com' } })).result[0];
-  const r = await cloudflare.request({ method: 'POST', path: `/zones/${zone.id}/dns_records`, body: { type: 'TXT', name: 'google._domainkey.aphralab.com', content: '"<value from Step 2>"', ttl: 1 } });
+  const zone = (
+    await cloudflare.request({
+      method: 'GET',
+      path: '/zones',
+      query: { name: 'aphralab.com' },
+    })
+  ).result[0];
+  const r = await cloudflare.request({
+    method: 'POST',
+    path: `/zones/${zone.id}/dns_records`,
+    body: {
+      type: 'TXT',
+      name: 'google._domainkey.aphralab.com',
+      content: '"<value from Step 2>"',
+      ttl: 1,
+    },
+  });
   return `${r.result.type} ${r.result.name}`;
-}
+};
 ```
 
 The `<value from Step 2>` part is the exact string the owner pasted. Then the owner clicks **Start authentication** in the same Admin console page.
