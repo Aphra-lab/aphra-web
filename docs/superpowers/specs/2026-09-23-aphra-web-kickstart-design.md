@@ -168,10 +168,11 @@ Phase B, mailbox move to Google Workspace.
 | --- | --- | --- |
 | `checks` | always | `npm ci`, format check, lint, typecheck, Vitest with coverage, build |
 | `e2e` | after `checks` | Playwright against the local production build |
-| `pr-title` | pull requests | Conventional Commit title |
 | `deploy-staging` | push to `dev`, after `e2e` | staging build, deploy `aphra-web-staging`, `@site` smoke tests on the staging URL |
 | `deploy-production` | push to `main`, after `e2e` | production build, deploy `aphra-web`, `@site` smoke tests on `https://aphralab.com` |
 | `release` | push to `main`, after `deploy-production` | semantic-release: GitHub release and notes. No npm publish, no commit back. |
+
+`.github/workflows/pr-title.yml` runs the `pr-title` job on pull requests to `dev` and `main`, title edits included: the title must be a Conventional Commit.
 
 `.github/workflows/smoke.yml` runs every day at 06:00 UTC and on demand: the full smoke suite against production. A failed run sends the standard GitHub failure notification.
 
