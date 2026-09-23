@@ -12,7 +12,7 @@ export default defineConfig({
     coverage: {
       enabled: true,
       reporter: ['json-summary', 'json', 'html'],
-      include: ['src/**/*'],
+      include: ['src/**/*', 'worker/**/*'],
       reportOnFailure: true,
     },
     setupFiles: 'tests/setup.ts',
