@@ -2,15 +2,132 @@ name: CI
 
 on:
   pull_request:
+    branches: [dev, main]
+  push:
+    branches: [dev, main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
 
 jobs:
   checks:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
-      - run: npm run check
+      - run: npm run format:check
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm run secretlint
+      - run: npm run test:coverage
+      - run: npm run build
+
+  e2e:
+    needs: checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps
+      - run: npm run test:e2e
+      - uses: actions/upload-artifact@v7
+        if: failure()
+        with:
+          name: playwright-report
+          path: playwright-report
+          retention-days: 7
+
+  deploy-staging:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/dev'
+    needs: e2e
+    runs-on: ubuntu-latest
+    environment:
+      name: staging
+      url: https://aphra-web-staging.aphralab.workers.dev
+    concurrency:
+      group: deploy-staging
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+        env:
+          CLOUDFLARE_ENV: staging
+      - uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+          command: deploy --var COMMIT_SHA:${{ github.sha }}
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:smoke -- --grep @site
+        env:
+          SMOKE_BASE_URL: https://aphra-web-staging.aphralab.workers.dev
+          EXPECTED_ENVIRONMENT: staging
+          EXPECTED_COMMIT: ${{ github.sha }}
+
+  deploy-production:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: e2e
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://aphralab.com
+    concurrency:
+      group: deploy-production
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+          command: deploy --var COMMIT_SHA:${{ github.sha }}
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:smoke -- --grep @site
+        env:
+          SMOKE_BASE_URL: https://aphralab.com
+          EXPECTED_ENVIRONMENT: production
+          EXPECTED_COMMIT: ${{ github.sha }}
+
+  release:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: deploy-production
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npx semantic-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
