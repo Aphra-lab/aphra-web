@@ -1,8 +1,14 @@
-# aphra-web
+# Aphra web
 
-> A frontend application scaffolded with [tskickstart](https://github.com/jeportie/tskickstart).
+Website of Aphra, a French brand of tasting drinks made with an artisanal clarification technique.
 
-This is a modern React single-page application built with Vite and Tailwind CSS v4. It uses a component-driven architecture with fast hot module replacement for instant feedback during development. The project includes a Welcome page to get you started, pre-configured testing with Vitest and Testing Library, and a quality toolchain that catches issues before they reach production.
+- Production: https://aphralab.com (branch `main`)
+- Staging: https://aphra-web-staging.aphralab.workers.dev (branch `dev`)
+- Design and decisions: [kickstart spec](docs/superpowers/specs/2026-09-23-aphra-web-kickstart-design.md)
+- Brand rules: [brand guide](docs/guides/brand.md)
+- Rollback: `npx wrangler rollback` (production) or `npx wrangler rollback --env staging`
+
+Scaffolded with [tskickstart](https://github.com/jeportie/tskickstart) 1.10.0. The sections below are its generated manual.
 
 ---
 
