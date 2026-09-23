@@ -1,0 +1,11 @@
+node_modules
+dist
+out
+coverage
+.env
+.env.local
+.env*.local
+*.log
+npm-debug.log*
+playwright-report/
+test-results/
