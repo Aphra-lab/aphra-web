@@ -1,19 +1,23 @@
 {
   "name": "aphra-web",
-  "description": "",
+  "description": "Aphra website",
   "version": "1.0.0",
+  "private": true,
   "author": "Jerome Portier",
-  "license": "ISC",
+  "license": "UNLICENSED",
   "keywords": [],
   "type": "module",
-  "main": "index.js",
+  "engines": {
+    "node": ">=24"
+  },
   "scripts": {
     "test": "vitest --run",
     "check": "npm run format && npm run lint && npm run typecheck && npm run secretlint && npm run test",
     "format": "prettier . --write",
+    "format:check": "prettier . --check",
     "lint": "eslint .",
     "typecheck": "tsc -b",
-    "secretlint": "secretlint **/*",
+    "secretlint": "secretlint \"**/*\"",
     "prepare": "husky",
     "test:unit": "vitest unit --run",
     "test:integration": "vitest int --run",

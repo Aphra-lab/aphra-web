@@ -1,7 +1,6 @@
 # INTEL — Lessons Learned
 
-Every agent reads this at startup and applies these lessons. Append a new entry whenever you learn a
-durable lesson or make a mistake worth never repeating.
+Every agent reads this at startup and applies these lessons. Append a new entry whenever you learn a durable lesson or make a mistake worth never repeating.
 
 <!-- Format: - **[Category]**: mistake → what to do instead -->
 

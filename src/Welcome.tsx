@@ -16,7 +16,11 @@ export default function Welcome() {
           rel="noreferrer"
           className="transition-[filter] duration-300 hover:drop-shadow-[0_0_2em_#646cffff]"
         >
-          <img src={viteLogo} className="h-24 p-6 animate-pulse motion-reduce:animate-none" alt="Vite logo" />
+          <img
+            src={viteLogo}
+            className="h-24 p-6 animate-pulse motion-reduce:animate-none"
+            alt="Vite logo"
+          />
         </a>
         <a
           href="https://react.dev"
@@ -43,7 +47,9 @@ export default function Welcome() {
           />
         </a>
       </div>
-      <h1 className="animate-bounce text-4xl font-bold leading-tight my-4">Vite + React + Tailwind</h1>
+      <h1 className="animate-bounce text-4xl font-bold leading-tight my-4">
+        Vite + React + Tailwind
+      </h1>
       <div className="p-8 border-black border-solid border-2 rounded-lg flex flex-col items-center">
         <button
           type="button"
@@ -57,10 +63,13 @@ export default function Welcome() {
           count is {count}
         </button>
         <p className="mt-4">
-          Edit <code className="font-mono bg-gray-300">src/App.tsx</code> and save to test HMR
+          Edit <code className="font-mono bg-gray-300">src/App.tsx</code> and
+          save to test HMR
         </p>
       </div>
-      <p className="text-[#888]">Click on the Vite and React logos to learn more</p>
+      <p className="text-[#888]">
+        Click on the Vite and React logos to learn more
+      </p>
     </div>
   );
 }

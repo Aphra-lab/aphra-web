@@ -6,7 +6,9 @@ test.describe('Welcome page', () => {
   });
 
   test('renders the heading', async ({ page }) => {
-    await expect(page.getByRole('heading', { name: 'Vite + React + Tailwind' })).toBeVisible();
+    await expect(
+      page.getByRole('heading', { name: 'Vite + React + Tailwind' }),
+    ).toBeVisible();
   });
 
   test('counter increments on click', async ({ page }) => {
@@ -19,6 +21,8 @@ test.describe('Welcome page', () => {
   test('displays the three logo links', async ({ page }) => {
     await expect(page.getByRole('link', { name: 'Vite logo' })).toBeVisible();
     await expect(page.getByRole('link', { name: 'React logo' })).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Tailwind logo' })).toBeVisible();
+    await expect(
+      page.getByRole('link', { name: 'Tailwind logo' }),
+    ).toBeVisible();
   });
 });

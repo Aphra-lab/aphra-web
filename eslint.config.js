@@ -40,7 +40,10 @@ export default tseslint.config(
     },
     rules: {
       ...reactHooks.configs.recommended.rules,
-      'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
+      'react-refresh/only-export-components': [
+        'warn',
+        { allowConstantExport: true },
+      ],
     },
   },
 
@@ -58,8 +61,15 @@ export default tseslint.config(
   {
     files: ['src/**/*.{ts,tsx}', 'tests/**/*.{ts,tsx}'],
     rules: {
-      'spaced-comment': ['error', 'always', { line: { markers: ['/'] }, block: { markers: ['!'], balanced: true } }],
-      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+      'spaced-comment': [
+        'error',
+        'always',
+        { line: { markers: ['/'] }, block: { markers: ['!'], balanced: true } },
+      ],
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        { argsIgnorePattern: '^_' },
+      ],
       // Relaxed for React components
       '@typescript-eslint/explicit-function-return-type': 'off',
       '@typescript-eslint/explicit-module-boundary-types': 'off',

@@ -8,7 +8,9 @@ import './index.css';
 export function AppSetup() {
   return (
     <StrictMode>
-      <ErrorBoundary fallback={<p className="text-red-600">An Error has occurred.</p>}>
+      <ErrorBoundary
+        fallback={<p className="text-red-600">An Error has occurred.</p>}
+      >
         <App />
       </ErrorBoundary>
     </StrictMode>

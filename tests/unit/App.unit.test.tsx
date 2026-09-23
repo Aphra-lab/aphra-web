@@ -7,7 +7,9 @@ describe('App component', () => {
   it('should render the heading', () => {
     render(<App />);
 
-    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Vite + React');
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
+      'Vite + React',
+    );
   });
 
   it('should render both logos', () => {

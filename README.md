@@ -8,28 +8,26 @@ This is a modern React single-page application built with Vite and Tailwind CSS 
 
 ## Project Snapshot
 
-| Item | Value |
-| --- | --- |
-| Project type | Frontend Application |
-| Primary stack | React + Vite + Tailwind CSS |
-| Testing stack | Vitest + Playwright |
+| Item          | Value                                                |
+| ------------- | ---------------------------------------------------- |
+| Project type  | Frontend Application                                 |
+| Primary stack | React + Vite + Tailwind CSS                          |
+| Testing stack | Vitest + Playwright                                  |
 | Quality stack | TypeScript, ESLint, Prettier, Secretlint, Commitlint |
 
 ---
 
 ## Prerequisites
 
-- [Node.js](https://nodejs.org/) v22+ (see `.mise.toml` for pinned version)
-- [mise](https://mise.jdx.dev/) (recommended for tool version management)
+- [Node.js](https://nodejs.org/) 24 (see `.nvmrc`)
 
 ---
 
 ## Getting Started
 
-Install tool versions and dependencies:
+Install dependencies:
 
 ```bash
-mise install
 npm install
 ```
 
@@ -224,7 +222,7 @@ Import the component in `src/Welcome.tsx` and place it above the counter card:
 import NotificationBanner from './NotificationBanner';
 
 // inside the return, before the counter <div>:
-<NotificationBanner message="Welcome to the app!" variant="info" />
+<NotificationBanner message="Welcome to the app!" variant="info" />;
 ```
 
 Check the browser at `http://localhost:5173` — the blue banner appears and dismisses on click.
@@ -346,12 +344,9 @@ In `src/Welcome.tsx`, add a link to the About page. Import `Link` from `react-ro
 import { Link } from 'react-router';
 
 // inside the return, after the logos paragraph:
-<Link
-  to="/about"
-  className="mt-2 text-blue-600 underline hover:text-blue-800"
->
+<Link to="/about" className="mt-2 text-blue-600 underline hover:text-blue-800">
   About this project
-</Link>
+</Link>;
 ```
 
 Add a matching link back in `src/About.tsx`:
@@ -362,7 +357,7 @@ import { Link } from 'react-router';
 // inside the return, after the <p>:
 <Link to="/" className="mt-4 text-blue-600 underline hover:text-blue-800">
   Back to home
-</Link>
+</Link>;
 ```
 
 #### Step 6 — Write an E2E test
@@ -376,9 +371,7 @@ test.describe('About page', () => {
   test('navigates to about page via link', async ({ page }) => {
     await page.goto('/');
     await page.getByRole('link', { name: 'About this project' }).click();
-    await expect(
-      page.getByRole('heading', { name: 'About' }),
-    ).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'About' })).toBeVisible();
   });
 
   test('navigates back to home', async ({ page }) => {
@@ -453,9 +446,7 @@ type User = {
 };
 
 async function fetchUsers(): Promise<User[]> {
-  const response = await fetch(
-    'https://jsonplaceholder.typicode.com/users',
-  );
+  const response = await fetch('https://jsonplaceholder.typicode.com/users');
   if (!response.ok) throw new Error('Failed to fetch users');
   return response.json();
 }
@@ -513,9 +504,7 @@ function createWrapper() {
   });
   return function Wrapper({ children }: { children: ReactNode }) {
     return (
-      <QueryClientProvider client={queryClient}>
-        {children}
-      </QueryClientProvider>
+      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
     );
   };
 }
@@ -533,9 +522,7 @@ describe('UserList', () => {
     globalThis.fetch = vi.fn().mockResolvedValue({
       ok: true,
       json: () =>
-        Promise.resolve([
-          { id: 1, name: 'Alice', email: 'alice@example.com' },
-        ]),
+        Promise.resolve([{ id: 1, name: 'Alice', email: 'alice@example.com' }]),
     });
 
     render(<UserList />, { wrapper: createWrapper() });
@@ -567,7 +554,7 @@ In `src/App.tsx`, add the route:
 import UserList from './UserList';
 
 // inside <Routes>:
-<Route path="/users" element={<UserList />} />
+<Route path="/users" element={<UserList />} />;
 ```
 
 Add a link in `src/Welcome.tsx`:
@@ -729,6 +716,7 @@ Use utility classes directly in JSX. Tailwind CSS v4 is configured via `src/inde
 TypeScript is configured in strict mode with JSX support. In this React project, it validates component props, hook usage, and event handlers at compile time. The `tsconfig.json` is split into app and node configs for optimal checking.
 
 Use cases:
+
 - Validate component props and prevent missing or wrong-type props
 - Catch stale closure bugs in useEffect dependencies
 - Ensure event handler signatures match DOM events
@@ -757,6 +745,7 @@ npm run format
 This stack gives fast feedback loops, modern component composition, and utility-first styling.
 
 Use cases:
+
 - Build composable UI with reusable components
 - Iterate quickly with Vite hot module replacement
 - Style with utility classes instead of writing CSS files
@@ -782,6 +771,7 @@ export function Counter() {
 Vitest is configured with jsdom and @testing-library/react for component testing. In this frontend project, use it to verify component rendering, user interactions, and hook behavior.
 
 Use cases:
+
 - Render components and assert DOM output
 - Simulate user clicks, typing, and form submissions
 - Test custom hooks in isolation with renderHook
@@ -805,6 +795,7 @@ describe('Welcome', () => {
 Playwright adds browser-level confidence for critical user paths. It runs real browsers and can test across Chrome, Firefox, and Safari.
 
 Use cases:
+
 - Smoke tests for deployment safety
 - End-to-end tests across multi-page user flows
 - Visual regression testing
@@ -823,6 +814,7 @@ test('home page renders', async ({ page }) => {
 Secretlint scans the repository for API keys, tokens, and other accidental secrets before they reach version control.
 
 Use cases:
+
 - Prevent committing sensitive credentials
 - Add a safety net before pushes and PRs
 - Catch leaked tokens in test fixtures
@@ -836,6 +828,7 @@ npm run secretlint
 Commitlint enforces predictable commit messages following the Conventional Commits standard. This enables automated changelogs and semantic versioning.
 
 Use cases:
+
 - Keep commit history searchable and structured
 - Enable automated release note generation
 - Enforce team-wide commit message conventions
@@ -848,18 +841,18 @@ git commit -m "feat(cli): add doctor command"
 
 ## Scripts Reference
 
-| Script | Description |
-| --- | --- |
-| `npm run check` | Run all quality checks |
-| `npm run format` | Format code with Prettier |
-| `npm run lint` | Lint with ESLint |
-| `npm run typecheck` | Type-check with TypeScript |
-| `npm run secretlint` | Scan for secrets |
-| `npm test` | Run all tests |
-| `npm run test:unit` | Run unit tests |
-| `npm run test:integration` | Run integration tests |
-| `npm run test:coverage` | Tests with coverage |
-| `npm run test:e2e` | Run Playwright E2E tests |
-| `npm run test:e2e:ui` | Playwright interactive mode |
-| `npm run dev` | Start development server |
-| `npm run build` | Build for production |
+| Script                     | Description                 |
+| -------------------------- | --------------------------- |
+| `npm run check`            | Run all quality checks      |
+| `npm run format`           | Format code with Prettier   |
+| `npm run lint`             | Lint with ESLint            |
+| `npm run typecheck`        | Type-check with TypeScript  |
+| `npm run secretlint`       | Scan for secrets            |
+| `npm test`                 | Run all tests               |
+| `npm run test:unit`        | Run unit tests              |
+| `npm run test:integration` | Run integration tests       |
+| `npm run test:coverage`    | Tests with coverage         |
+| `npm run test:e2e`         | Run Playwright E2E tests    |
+| `npm run test:e2e:ui`      | Playwright interactive mode |
+| `npm run dev`              | Start development server    |
+| `npm run build`            | Build for production        |
