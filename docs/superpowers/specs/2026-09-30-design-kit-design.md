@@ -1,7 +1,7 @@
 # Aphra design kit: design
 
 - Date: 2026-09-30
-- Status: design approved in brainstorming. Spec under review. Implementation plan: not written yet.
+- Status: approved. Implementation plan: `docs/superpowers/plans/2026-09-30-design-kit.md`. Sections 4.1, 4.2, 6.1, 7.2, 8, 11, 12 and 15 were amended during planning.
 - Reference: [LedgerHQ/lumen](https://github.com/LedgerHQ/lumen), the Ledger design system (tokens, React components, Storybook, AI rules).
 
 ## 1. Context
@@ -86,7 +86,8 @@ aphra-web/
    │  └─ components/       one folder per component, with its story
    ├─ assets/              web-ready SVG and WebP files
    ├─ sources/             editable sources, not exported
-   ├─ scripts/             assets script (trim and resize)
+   ├─ scripts/             assets script (trim and resize), version script
+   ├─ src/generated/       asset sizes written by the assets script
    ├─ tests/               unit tests
    ├─ .storybook/
    └─ wrangler.jsonc       the aphra-design Worker (static files only)
@@ -99,7 +100,7 @@ The `exports` map is the public API. Any path outside it is private.
 | Import | Content |
 | --- | --- |
 | `@aphralab/design` | React components, `useAgeConsent`, `leaveSite`, `HEALTH_WARNING`, `RECIPES` |
-| `@aphralab/design/tokens.css` | Tailwind v4 `@theme` block. The same values are plain CSS variables for sites without Tailwind |
+| `@aphralab/design/tokens.css` | Tailwind v4 `@theme static` block. Every token is also a CSS variable on `:root` in the compiled CSS |
 | `@aphralab/design/assets/*` | SVG and WebP files |
 
 - React is a peer dependency. The site keeps a single React copy.
@@ -190,10 +191,10 @@ A unit test checks each text pairing used in the components against this table.
 | `logo-wordmark.svg`, `logo-wordmark-moon.svg` | `LOGOTYPE/BASIC/ENCRE/*` | SVGO cleanup. Fill becomes `currentColor`. The black, ink and white files collapse into one file per shape |
 | `logomark-1.svg` … `logomark-6.svg` | `LOGOMARK/BASIC/*/ENCRE` | Same as above |
 | `logomark-stamp.webp` | `LOGOMARK/TAMPON/LOGOMARK_TAMPON_1.png` | WebP |
-| `illustration-<name>-{480,960,1920}.webp` | `ICONO/ILLUS_*.png` | Transparent margin trimmed. WebP at 3 widths |
+| `illustration-<name>-{480,960,full}.webp` | `ICONO/ILLUS_*.png` | Transparent margin trimmed. WebP at 480 px, 960 px and full width. Full is the trimmed width, 1920 px at most; trimmed fruits are narrower than 1920 px |
 | `signature.svg` | Designer (section 13) | Outlined "Aphra" in Magnolia. Allowed by the desktop licence, section 2 |
 
-- `npm run assets -w @aphralab/design` makes the WebP files with `sharp`. The output is committed. The site build does not process images.
+- `npm run assets -w @aphralab/design` makes the WebP files with `sharp` and writes their sizes to `src/generated/asset-sizes.ts`. The output is committed. The site build does not process images.
 - The components draw logos with a CSS mask, the technique Lumen uses. The colour follows `currentColor`.
 
 ### 6.2 Fonts
@@ -235,7 +236,7 @@ Every component has a story, and unit tests in `packages/design/tests/`.
 `AgeGate`:
 
 - Text, verbatim from wireframe 1: "Je déclare sur l'honneur avoir l'âge légal afin de consulter le site aphralab.com selon les lois en vigueur dans mon pays."
-- Accessible dialog: `role="dialog"`, `aria-modal="true"`. Focus stays inside the dialog. The page behind is `inert`.
+- Accessible dialog: `role="dialog"`, `aria-modal="true"`, focus on OUI. The site content is not rendered before consent, so the keyboard cannot reach it.
 - It includes `HealthWarning` (`tone="black"`), because the brand guide requires the warning on every page.
 - OUI calls `useAgeConsent().accept()`. It stores the date under `aphra.age-consent` in `localStorage`, inside `try/catch`. When storage is blocked (private mode), the gate shows again at the next visit. The consent does not expire in v1.
 - NON calls `leaveSite(exitUrl)`. When the visitor came from another origin and history has an earlier entry, it runs `history.back()`. Otherwise it runs `location.replace(exitUrl)`. Default `exitUrl`: `about:blank`. `window.close()` is not used: browsers only allow it for windows opened by a script.
@@ -244,7 +245,8 @@ Every component has a story, and unit tests in `packages/design/tests/`.
 
 - Uses the same internal `Envelope` artwork as `AgeGate`. `Envelope` is not exported.
 - The artwork is vector layers: body, closed flap, open flap, card, string, eyelets. The paper grain is an SVG noise filter, so no texture file is needed.
-- `onDone` fires at the end. A click, Enter or Escape skips to the end.
+- `onDone` fires at the end. A click, Enter or Escape skips to the end. `onDone` also fires after 2.5 s when no animation end arrives, for example in a background tab.
+- The health warning stays visible during the reveal.
 - With `prefers-reduced-motion`, it becomes a fade.
 
 ### 7.3 Layout
@@ -272,7 +274,7 @@ The licences read are the Monotype "Font Software for Desktop" EULA (v250903) an
 | Web §3 | no use "for authoring purposes" | Claude Design gets the fallback, never the file |
 | Web §7 | the licence may have a Term | If the Term ends, the site stops serving the font |
 
-A CI step fails when git tracks any file whose name matches `magnolia` with a font extension. `.gitignore` excludes the same pattern.
+A unit test, run in CI, fails when git tracks any file whose name matches `magnolia` with a font extension. `.gitignore` excludes the same pattern.
 
 ## 9. Storybook and documentation
 
@@ -306,7 +308,8 @@ Changes to `.github/workflows/ci.yml`:
 - `checks`: format, lint, type check, tests and build cover both workspaces. It also runs the Storybook build and the Magnolia guard (section 8).
 - New job `deploy-design-staging`: on push to `dev`. It builds Storybook and deploys the `aphra-design` Worker (environment `staging`, `workers.dev`).
 - New job `deploy-design-production`: on push to `main`. It deploys to the custom domain `design.aphralab.com`.
-- Both jobs use the existing `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`, and `wrangler-action` with `workingDirectory: packages/design`.
+- Both jobs use the existing `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`. They run `wrangler deploy --config packages/design/wrangler.jsonc` from the repository root, so the pinned root Wrangler is used. With `workingDirectory`, `wrangler-action` would not find the hoisted binary.
+- The daily smoke run (`smoke.yml`) runs every smoke spec against `aphralab.com`. The design smoke tests use `DESIGN_BASE_URL` and skip without it. The daily run sets it to `https://design.aphralab.com`.
 - The Storybook build writes `version.json` with the commit SHA. A smoke test after each deploy checks that the page loads and that `version.json` matches the commit.
 - The package stays `"private": true`. It cannot be published by mistake.
 
@@ -318,8 +321,8 @@ Test-driven, per `CLAUDE.md`: each behaviour starts with a failing test.
 | --- | --- |
 | Tokens | `palette.ts` and `tokens.css` agree. Every text pairing used in the components meets section 5.3. No Tailwind default colour exists |
 | Components | Roles, names and keyboard use for each component |
-| `AgeGate` | Focus stays inside. OUI stores consent. Blocked storage does not throw. NON goes back in history or replaces the location. The health warning is present |
-| `EnvelopeReveal` | `onDone` fires. Skip by click, Enter and Escape. Reduced motion takes the fade path |
+| `AgeGate` | No site content before consent. OUI stores consent. Blocked storage does not throw. NON goes back in history or replaces the location. The health warning is present |
+| `EnvelopeReveal` | `onDone` fires once. Skip by click, Enter and Escape. Fallback after 2.5 s. Reduced motion takes the fade path |
 | `HealthWarning` | Exact text. `LetterPage` and `AgeGate` always render it |
 | `BottleCounter` | Padding, placeholder, large values, the French accessible label |
 | Exports | Only the paths in section 4.2 resolve from the site |
@@ -362,6 +365,7 @@ Test-driven, per `CLAUDE.md`: each behaviour starts with a failing test.
 - Mobile layouts beyond the defaults in section 5.
 - Visual regression tests.
 - Consent expiry.
+- A plain CSS build of the tokens for sites without Tailwind.
 - The move to its own repository and to npm (trigger: a second code user).
 
 ## 16. Success criteria
