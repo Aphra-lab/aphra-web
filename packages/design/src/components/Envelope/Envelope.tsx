@@ -149,7 +149,7 @@ export function Envelope({
         </svg>
         <svg
           viewBox={`0 0 ${WIDTH} ${FLAP}`}
-          className="absolute inset-0 size-full [backface-visibility:hidden] [transform:rotateX(180deg)]"
+          className="absolute inset-0 size-full [backface-visibility:hidden] [transform:rotateY(180deg)]"
         >
           <path
             d={FLAP_PATH}
