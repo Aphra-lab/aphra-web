@@ -16,3 +16,9 @@ export type { SignatureProps } from './components/Signature/Signature';
 
 export { Illustration } from './components/Illustration/Illustration';
 export type { IllustrationProps } from './components/Illustration/Illustration';
+
+export { CircledLink } from './components/CircledLink/CircledLink';
+export type {
+  CircledLinkProps,
+  CircledLinkShape,
+} from './components/CircledLink/CircledLink';
