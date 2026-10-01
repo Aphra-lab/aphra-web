@@ -1,0 +1,27 @@
+import { Meta, Unstyled } from '@storybook/addon-docs/blocks';
+
+<Meta title="Foundations/Typography" />
+
+# Typography
+
+<Unstyled>
+  <div className="flex flex-col gap-4">
+    <div className="font-mono text-body">
+      text-body — Bienvenue, vous êtes sur le site internet d'Aphra.
+    </div>
+    <div className="font-mono text-caption">
+      text-caption — BOISSON DU XVIIe REPENSÉE POUR LE XXIe
+    </div>
+    <div className="font-mono text-nav">text-nav — MENU 000450</div>
+    <div className="font-mono text-legal">
+      text-legal — L'abus d'alcool est dangereux pour la santé, à consommer avec
+      modération.
+    </div>
+    <div className="font-script text-4xl">font-script — Sobrement</div>
+  </div>
+</Unstyled>
+
+- `font-mono` is DM Mono (SIL Open Font License).
+- `font-script` is Magnolia Cora Script. Its licence covers `aphralab.com` only, so this page shows the fallback.
+- The "Aphra" wordmark is a drawing. Use `Logo`, never text.
+- Below 768 px, `text-body` is 15 px.

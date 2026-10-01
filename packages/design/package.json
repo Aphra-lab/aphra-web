@@ -14,7 +14,9 @@
     "./assets/*": "./assets/*"
   },
   "scripts": {
-    "assets": "node scripts/build-assets.mjs && prettier --write src/generated"
+    "assets": "node scripts/build-assets.mjs && prettier --write src/generated",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build --quiet -o storybook-static"
   },
   "peerDependencies": {
     "react": "^19.0.0",
@@ -24,7 +26,11 @@
     "@fontsource/dm-mono": "^5.3.0"
   },
   "devDependencies": {
+    "@storybook/addon-a11y": "^10.6.1",
+    "@storybook/addon-docs": "^10.6.1",
+    "@storybook/react-vite": "^10.6.1",
     "sharp": "^0.35.5",
+    "storybook": "^10.6.1",
     "svgo": "^4.1.0"
   }
 }

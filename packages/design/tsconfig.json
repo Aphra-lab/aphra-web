@@ -17,5 +17,5 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src", "tests", ".storybook"]
+  "include": ["src", "tests", ".storybook/**/*", "../../tests/setup.ts"]
 }
