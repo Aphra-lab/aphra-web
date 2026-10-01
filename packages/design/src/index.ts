@@ -34,3 +34,7 @@ export type { HealthWarningProps } from './components/HealthWarning/HealthWarnin
 
 export { AGE_CONSENT_KEY, useAgeConsent } from './consent/useAgeConsent';
 export { leaveSite } from './consent/leaveSite';
+
+export { Header } from './components/Header/Header';
+export { TAGLINE } from './components/Header/tagline';
+export type { HeaderProps } from './components/Header/Header';
