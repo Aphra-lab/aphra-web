@@ -44,3 +44,6 @@ export type { LetterPageProps } from './components/LetterPage/LetterPage';
 
 export { AGE_DECLARATION, AgeGate } from './components/AgeGate/AgeGate';
 export type { AgeGateProps } from './components/AgeGate/AgeGate';
+
+export { EnvelopeReveal } from './components/EnvelopeReveal/EnvelopeReveal';
+export type { EnvelopeRevealProps } from './components/EnvelopeReveal/EnvelopeReveal';

@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import {
@@ -38,13 +38,34 @@ describe('AgeGate', () => {
     expect(screen.getByText(HEALTH_WARNING)).toHaveClass('text-paper');
   });
 
-  it('shows the site after OUI and remembers it', async () => {
+  it('keeps the health warning inside the age dialog', () => {
     renderGate();
+
+    expect(
+      within(screen.getByRole('dialog', { name: AGE_DECLARATION })).getByText(
+        HEALTH_WARNING,
+      ),
+    ).toBeInTheDocument();
+  });
+
+  it('plays the envelope reveal after OUI, then shows the site', async () => {
+    const { container } = renderGate();
 
     await userEvent.click(screen.getByRole('button', { name: 'OUI' }));
 
-    expect(screen.getByText('Le site')).toBeInTheDocument();
+    expect(screen.queryByRole('dialog')).toBeNull();
+    expect(screen.getByRole('status')).toHaveTextContent(
+      "Ouverture de l'enveloppe",
+    );
+    expect(screen.queryByText('Le site')).toBeNull();
+    expect(screen.getByText(HEALTH_WARNING)).toBeInTheDocument();
     expect(window.localStorage.getItem(AGE_CONSENT_KEY)).not.toBeNull();
+
+    const card = container.querySelector('[data-part="card"]');
+    if (!card) throw new Error('card not found');
+    fireEvent.animationEnd(card);
+
+    expect(screen.getByText('Le site')).toBeInTheDocument();
   });
 
   it('shows the site at once when consent is stored', () => {
@@ -74,6 +95,7 @@ describe('AgeGate', () => {
     renderGate();
 
     await userEvent.click(screen.getByRole('button', { name: 'OUI' }));
+    await userEvent.keyboard('{Enter}');
 
     expect(screen.getByText('Le site')).toBeInTheDocument();
   });

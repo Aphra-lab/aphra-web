@@ -16,6 +16,7 @@ const WIDTH = 566;
 const HEIGHT = 773;
 const FLAP = 228;
 const LINE = 'fill-none stroke-ink';
+const FLAP_PATH = `M0.5 0.5 H${WIDTH - 0.5} V${FLAP - 28} Q${WIDTH - 0.5} ${FLAP - 0.5} ${WIDTH - 28} ${FLAP - 0.5} H28 Q0.5 ${FLAP - 0.5} 0.5 ${FLAP - 28} Z`;
 
 function Grain({ id, y, height }: { id: string; y: number; height: number }) {
   return (
@@ -132,10 +133,10 @@ export function Envelope({
       >
         <svg
           viewBox={`0 0 ${WIDTH} ${FLAP}`}
-          className="size-full overflow-visible"
+          className="absolute inset-0 size-full overflow-visible [backface-visibility:hidden]"
         >
           <path
-            d={`M0.5 0.5 H${WIDTH - 0.5} V${FLAP - 28} Q${WIDTH - 0.5} ${FLAP - 0.5} ${WIDTH - 28} ${FLAP - 0.5} H28 Q0.5 ${FLAP - 0.5} 0.5 ${FLAP - 28} Z`}
+            d={FLAP_PATH}
             className="fill-paper stroke-ink"
             strokeWidth={1}
           />
@@ -145,6 +146,16 @@ export function Envelope({
             strokeWidth={1.2}
           />
           <Eyelet x={280} y={165} />
+        </svg>
+        <svg
+          viewBox={`0 0 ${WIDTH} ${FLAP}`}
+          className="absolute inset-0 size-full [backface-visibility:hidden] [transform:rotateX(180deg)]"
+        >
+          <path
+            d={FLAP_PATH}
+            className="fill-paper stroke-ink"
+            strokeWidth={1}
+          />
         </svg>
       </div>
 

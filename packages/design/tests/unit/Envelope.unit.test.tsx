@@ -35,6 +35,15 @@ describe('Envelope', () => {
     );
   });
 
+  it('gives the flap a front face and a plain inner face', () => {
+    const { container } = render(<Envelope state="opening" />);
+
+    const faces = part(container, 'flap').querySelectorAll('svg');
+    expect(faces).toHaveLength(2);
+    expect(faces[0]?.querySelectorAll('circle').length).toBeGreaterThan(0);
+    expect(faces[1]?.querySelectorAll('circle')).toHaveLength(0);
+  });
+
   it('gives each envelope its own grain filter id', () => {
     const { container } = render(
       <>
