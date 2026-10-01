@@ -1,0 +1,59 @@
+@import '@fontsource/dm-mono/400.css';
+@import '@fontsource/dm-mono/400-italic.css';
+@import '@fontsource/dm-mono/500.css';
+
+@theme static {
+  --color-*: initial;
+  --color-paper: #fdfcf2;
+  --color-ink: #374036;
+  --color-black: #000000;
+  --color-green: #29896f;
+  --color-yellow: #f59e14;
+  --color-brown: #a35b1a;
+  --color-red: #dd2414;
+
+  --font-mono:
+    'DM Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --font-script:
+    'Magnolia Cora Script', 'Snell Roundhand', 'Segoe Script', cursive;
+
+  --text-body: 1.0625rem;
+  --text-body--line-height: 1.05;
+  --text-caption: 0.75rem;
+  --text-caption--line-height: 1.1;
+  --text-caption--letter-spacing: 0.04em;
+  --text-nav: 1rem;
+  --text-nav--line-height: 1.2;
+  --text-legal: 0.75rem;
+  --text-legal--line-height: 1.4;
+
+  --container-letter: 46.125rem;
+  --container-measure: 40ch;
+
+  --ease-paper: cubic-bezier(0.65, 0, 0.35, 1);
+  --animate-flap-open: flap-open 700ms var(--ease-paper) both;
+  --animate-card-rise: card-rise 700ms var(--ease-paper) 600ms both;
+  --animate-fade-in: fade-in 200ms ease-out both;
+
+  @keyframes flap-open {
+    to {
+      transform: rotateX(180deg);
+    }
+  }
+  @keyframes card-rise {
+    to {
+      transform: translateY(-75%);
+    }
+  }
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+  }
+}
+
+@media (width < 48rem) {
+  :root {
+    --text-body: 0.9375rem;
+  }
+}
