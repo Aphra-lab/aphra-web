@@ -13,3 +13,6 @@ export type {
 } from './components/Logomark/Logomark';
 export { Signature } from './components/Signature/Signature';
 export type { SignatureProps } from './components/Signature/Signature';
+
+export { Illustration } from './components/Illustration/Illustration';
+export type { IllustrationProps } from './components/Illustration/Illustration';
