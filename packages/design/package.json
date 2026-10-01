@@ -1,0 +1,20 @@
+{
+  "name": "@aphralab/design",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Aphra design kit: tokens, assets and React components",
+  "license": "UNLICENSED",
+  "type": "module",
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "exports": {
+    ".": "./src/index.ts",
+    "./tokens.css": "./src/tokens/tokens.css",
+    "./assets/*": "./assets/*"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  }
+}
