@@ -25,3 +25,9 @@ export type {
 
 export { BottleCounter } from './components/BottleCounter/BottleCounter';
 export type { BottleCounterProps } from './components/BottleCounter/BottleCounter';
+
+export {
+  HEALTH_WARNING,
+  HealthWarning,
+} from './components/HealthWarning/HealthWarning';
+export type { HealthWarningProps } from './components/HealthWarning/HealthWarning';
