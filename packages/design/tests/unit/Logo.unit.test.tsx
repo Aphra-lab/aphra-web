@@ -4,8 +4,8 @@ import { render, screen } from '@testing-library/react';
 
 import { Logo, Logomark, Signature } from '@aphralab/design';
 
-import { LOGO_FILES } from '../../src/components/Logo/Logo';
-import { LOGOMARK_FILES } from '../../src/components/Logomark/Logomark';
+import { LOGO_FILES } from '../../src/components/Logo/logo-files';
+import { LOGOMARK_FILES } from '../../src/components/Logomark/logomark-files';
 import { SIGNATURE_RATIO } from '../../src/components/Signature/Signature';
 
 function viewBoxRatio(file: string) {
