@@ -41,3 +41,6 @@ export type { HeaderProps } from './components/Header/Header';
 
 export { LetterPage } from './components/LetterPage/LetterPage';
 export type { LetterPageProps } from './components/LetterPage/LetterPage';
+
+export { AGE_DECLARATION, AgeGate } from './components/AgeGate/AgeGate';
+export type { AgeGateProps } from './components/AgeGate/AgeGate';
