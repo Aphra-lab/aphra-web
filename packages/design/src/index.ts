@@ -31,3 +31,6 @@ export {
   HealthWarning,
 } from './components/HealthWarning/HealthWarning';
 export type { HealthWarningProps } from './components/HealthWarning/HealthWarning';
+
+export { AGE_CONSENT_KEY, useAgeConsent } from './consent/useAgeConsent';
+export { leaveSite } from './consent/leaveSite';
