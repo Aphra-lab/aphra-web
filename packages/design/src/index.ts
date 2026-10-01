@@ -38,3 +38,6 @@ export { leaveSite } from './consent/leaveSite';
 export { Header } from './components/Header/Header';
 export { TAGLINE } from './components/Header/tagline';
 export type { HeaderProps } from './components/Header/Header';
+
+export { LetterPage } from './components/LetterPage/LetterPage';
+export type { LetterPageProps } from './components/LetterPage/LetterPage';
