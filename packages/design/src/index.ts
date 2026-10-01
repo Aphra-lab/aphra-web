@@ -22,3 +22,6 @@ export type {
   CircledLinkProps,
   CircledLinkShape,
 } from './components/CircledLink/CircledLink';
+
+export { BottleCounter } from './components/BottleCounter/BottleCounter';
+export type { BottleCounterProps } from './components/BottleCounter/BottleCounter';
