@@ -16,7 +16,7 @@
   "scripts": {
     "assets": "node scripts/build-assets.mjs && prettier --write src/generated",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build --quiet -o storybook-static"
+    "build-storybook": "storybook build --quiet -o storybook-static && node scripts/write-version.mjs"
   },
   "peerDependencies": {
     "react": "^19.0.0",

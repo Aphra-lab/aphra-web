@@ -25,6 +25,7 @@ jobs:
         env:
           SMOKE_BASE_URL: https://aphralab.com
           EXPECTED_ENVIRONMENT: production
+          DESIGN_BASE_URL: https://design.aphralab.com
           MAIL_PROVIDER: ${{ vars.MAIL_PROVIDER }}
       - uses: actions/upload-artifact@v7
         if: failure()
