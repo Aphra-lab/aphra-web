@@ -20,7 +20,7 @@ The design kit `packages/design` is the source of truth. Browse it at https://de
 
 - Colours, from `COULEURS.pdf`: paper `#fdfcf2`, ink `#374036`, black `#000000`, green `#29896f`, yellow `#f59e14`, brown `#a35b1a`, red `#dd2414`.
 - Recipes: gin concombre (green), rhum mangue (yellow), café calva (brown), vodka tomate (red).
-- Fonts: DM Mono for text. Magnolia Cora Script for script text. The "Aphra" wordmark is a drawing, not a font.
+- Fonts: DM Mono for text. Magnolia Cora Script for script text, in two styles: Regular (`font-script`) and Smooth (`font-script-smooth`). The "Aphra" wordmark is a drawing, not a font.
 - Logos: wordmark with or without the moon, six moon faces and one stamp texture. They are drawn in ink by default.
 - Illustrations: engraved fruits with faces (concombre, mangue, pomme, poivron, tomate).
 - Magnolia licence: no font file in any repository, no conversion, and no upload to a design tool (MyFonts desktop and web licences).

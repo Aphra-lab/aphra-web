@@ -162,13 +162,14 @@ A unit test checks each text pairing used in the components against this table.
 | --- | --- | --- |
 | `font-mono` | DM Mono, then `ui-monospace` | Body text and UI |
 | `font-script` | "Magnolia Cora Script", then a cursive fallback | Live script text |
+| `font-script-smooth` | "Magnolia Cora Smooth Script", then a cursive fallback | Live script text, Smooth style |
 | `text-body` | 17 px, line height 1.05 | Letter text (typewriter look) |
 | `text-caption` | 12 px, capitals, wide tracking | Tagline, age-gate text |
 | `text-nav` | 16 px | MENU, counter |
 
 - The "Aphra" wordmark is an SVG, not text.
 - Sizes are measured on the 1920 px wireframe. No mobile wireframe exists. Below 768 px, body text is 15 px until a mobile design exists.
-- `font-script` shows the fallback on every domain except `aphralab.com`, and on `aphralab.com` until sub-project 2 ships.
+- `font-script` and `font-script-smooth` show the fallback on every domain except `aphralab.com`, and on `aphralab.com` until sub-project 2 ships.
 
 ### 5.5 Layout and motion
 

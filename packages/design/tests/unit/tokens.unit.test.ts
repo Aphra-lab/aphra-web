@@ -39,6 +39,12 @@ describe('colour tokens', () => {
     expect(css).toContain("'Magnolia Cora Script'");
     expect(css).not.toMatch(/url\(/);
   });
+
+  it('names the smooth script style, also without a font file', () => {
+    expect(css).toContain('--font-script-smooth:');
+    expect(css).toContain("'Magnolia Cora Smooth Script'");
+    expect(css).not.toMatch(/url\(/);
+  });
 });
 
 describe('contrast rules (spec section 5.3)', () => {

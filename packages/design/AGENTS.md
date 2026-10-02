@@ -32,7 +32,7 @@ Rules for any AI assistant that writes code with the Aphra design kit. The repos
 
 ## Fonts
 
-- `font-mono` is DM Mono. `font-script` is Magnolia Cora Script.
+- `font-mono` is DM Mono. `font-script` is Magnolia Cora Script Regular. `font-script-smooth` is Magnolia Cora Script Smooth.
 - Never add, convert, upload or commit a Magnolia font file. The MyFonts licences forbid it. Only `aphralab.com` may serve the webfont. No site serves it yet (sub-project 2).
 - The "Aphra" wordmark is `Logo`, never text.
 
