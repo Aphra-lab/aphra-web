@@ -10,7 +10,7 @@ export const AGE_DECLARATION =
   "Je déclare sur l'honneur avoir l'âge légal afin de consulter le site aphralab.com selon les lois en vigueur dans mon pays.";
 
 const BUTTON =
-  'px-2 font-mono text-nav text-ink outline-none focus-visible:outline-1 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ink';
+  'px-2 py-3 font-mono text-nav text-ink outline-none focus-visible:outline-1 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-ink';
 
 export function GateScreen({
   children,

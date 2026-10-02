@@ -31,6 +31,19 @@ describe('LetterPage', () => {
     expect(document.querySelector('address')).toBeNull();
   });
 
+  it('sets the legal text in the measure of the letter', () => {
+    render(
+      <LetterPage>
+        <p>Bienvenue,</p>
+      </LetterPage>,
+    );
+
+    expect(screen.getByRole('contentinfo')).toHaveClass(
+      'max-w-measure',
+      'text-body',
+    );
+  });
+
   it('draws the ruled column on paper', () => {
     const { container } = render(
       <LetterPage>
