@@ -9,7 +9,7 @@ export function AppSetup() {
   return (
     <StrictMode>
       <ErrorBoundary
-        fallback={<p className="text-red">An Error has occurred.</p>}
+        fallback={<p className="text-red">Une erreur est survenue.</p>}
       >
         <App />
       </ErrorBoundary>
