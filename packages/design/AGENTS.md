@@ -26,13 +26,13 @@ Rules for any AI assistant that writes code with the Aphra design kit. The repos
 ## Legal
 
 - Every page shows `HealthWarning`. `LetterPage` and `AgeGate` already include it. Its text cannot change.
-- The site is wrapped in `AgeGate`.
+- `AgeGate` must wrap every Aphra site before launch. `aphra-web` does not use it yet (sub-project 4).
 - Product copy stays objective (loi Évin, article L3323-4): degree, origin, composition, producer, production method, sale terms, way of drinking, smell and taste.
 
 ## Fonts
 
 - `font-mono` is DM Mono. `font-script` is Magnolia Cora Script.
-- Never add, convert, upload or commit a Magnolia font file. The MyFonts licences forbid it. Only `aphralab.com` serves the webfont.
+- Never add, convert, upload or commit a Magnolia font file. The MyFonts licences forbid it. Only `aphralab.com` may serve the webfont. No site serves it yet (sub-project 2).
 - The "Aphra" wordmark is `Logo`, never text.
 
 ## Language

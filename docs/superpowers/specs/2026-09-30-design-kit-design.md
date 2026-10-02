@@ -104,7 +104,7 @@ The `exports` map is the public API. Any path outside it is private.
 | `@aphralab/design/assets/*` | SVG and WebP files |
 
 - React is a peer dependency. The site keeps a single React copy.
-- The site's stylesheet imports Tailwind, then `tokens.css`, with `source(none)`, then adds `@source` lines for the site's `src` and for `packages/design/src`, so Tailwind sees the kit's classes.
+- The site's stylesheet imports Tailwind with `source(none)`, then `tokens.css`, then adds `@source` lines for the site's `src` and for `packages/design/src`, so Tailwind sees the kit's classes.
 - npm workspaces link the package. npm has no `workspace:` protocol. The exact version range is checked at implementation time.
 
 ## 5. Tokens
