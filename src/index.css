@@ -1,3 +1,4 @@
-@import 'tailwindcss';
+@import 'tailwindcss' source(none);
 @import '@aphralab/design/tokens.css';
+@source '.';
 @source '../packages/design/src';
