@@ -1,0 +1,21 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="Foundations/Introduction" />
+
+# Aphra design kit
+
+Tokens, assets and React components for Aphra sites. Source: `packages/design` in [Aphra-lab/aphra-web](https://github.com/Aphra-lab/aphra-web). Rules for AI assistants: `packages/design/AGENTS.md`.
+
+## Use it in a site
+
+```css
+@import 'tailwindcss';
+@import '@aphralab/design/tokens.css';
+@source '../packages/design/src';
+```
+
+```tsx
+import { AgeGate, LetterPage } from '@aphralab/design';
+```
+
+Public copy is in French. Every page shows the health warning. `LetterPage` and `AgeGate` already include it.
