@@ -31,3 +31,19 @@ export {
   HealthWarning,
 } from './components/HealthWarning/HealthWarning';
 export type { HealthWarningProps } from './components/HealthWarning/HealthWarning';
+
+export { AGE_CONSENT_KEY, useAgeConsent } from './consent/useAgeConsent';
+export { leaveSite } from './consent/leaveSite';
+
+export { Header } from './components/Header/Header';
+export { TAGLINE } from './components/Header/tagline';
+export type { HeaderProps } from './components/Header/Header';
+
+export { LetterPage } from './components/LetterPage/LetterPage';
+export type { LetterPageProps } from './components/LetterPage/LetterPage';
+
+export { AGE_DECLARATION, AgeGate } from './components/AgeGate/AgeGate';
+export type { AgeGateProps } from './components/AgeGate/AgeGate';
+
+export { EnvelopeReveal } from './components/EnvelopeReveal/EnvelopeReveal';
+export type { EnvelopeRevealProps } from './components/EnvelopeReveal/EnvelopeReveal';

@@ -27,6 +27,14 @@ describe('Logo', () => {
     expect(logo).toHaveClass('bg-current', 'h-16');
   });
 
+  it('opts out of forced-colour adjustment to stay visible', () => {
+    render(<Logo />);
+
+    expect(screen.getByRole('img', { name: 'Aphra' })).toHaveClass(
+      'forced-color-adjust-none',
+    );
+  });
+
   it('draws the wordmark with the moon', () => {
     render(<Logo variant="wordmark-moon" className="h-10" />);
 
