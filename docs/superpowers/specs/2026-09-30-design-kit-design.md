@@ -199,7 +199,7 @@ A unit test checks each text pairing used in the components against this table.
 
 ### 6.2 Fonts
 
-- DM Mono comes from the `@fontsource/dm-mono` package. It is OFL and already in `.woff2`. No font binary is committed.
+- DM Mono comes from the `@fontsource/dm-mono` package. It is OFL and already in `.woff2`. No webfont file is committed. The DM Mono `.ttf` files in `sources/` are the designer's originals, under the SIL Open Font License.
 - Magnolia: only the `font-script` token and the fallback (section 8).
 
 ### 6.3 Sources (`sources/`)

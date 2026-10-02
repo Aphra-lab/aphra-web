@@ -35,4 +35,4 @@ Do this when a second site needs the kit.
 2. Push the branch to a new repository `Aphra-lab/aphra-design`.
 3. Add a library build (Vite library mode), `files`, and a `publishConfig`. Remove `"private": true`.
 4. Publish `@aphralab/design` to npm with semantic-release.
-5. In `aphra-web`, remove `packages/design`, remove the workspace, and depend on the published version. The site imports do not change.
+5. In `aphra-web`, remove `packages/design`, remove the workspace, and depend on the published version. The site imports do not change. Then change `@source '../packages/design/src'` in `src/index.css` to the installed package's source folder. The e2e test 'styles the health warning with the design kit tokens' fails until that line is right.

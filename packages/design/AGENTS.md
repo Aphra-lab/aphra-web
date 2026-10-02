@@ -22,6 +22,7 @@ Rules for any AI assistant that writes code with the Aphra design kit. The repos
 - On paper: body text in `ink` or `black`. `red` and `brown` pass for text. `green` is for large text only. `yellow` is never text.
 - On black: text in `paper`, `yellow` or `green`.
 - Recipe colours come from `RECIPES`. Do not hard-code them.
+- No corner radius and no shadow (spec section 5.5): do not use `rounded-*` or `shadow-*` utilities.
 
 ## Legal
 
