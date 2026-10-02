@@ -104,7 +104,7 @@ The `exports` map is the public API. Any path outside it is private.
 | `@aphralab/design/assets/*` | SVG and WebP files |
 
 - React is a peer dependency. The site keeps a single React copy.
-- The site's stylesheet imports Tailwind, then `tokens.css`, then adds an `@source` line for `packages/design/src`, so Tailwind sees the kit's classes. The exact Tailwind v4 syntax is checked in the Context7 docs at implementation time.
+- The site's stylesheet imports Tailwind, then `tokens.css`, with `source(none)`, then adds `@source` lines for the site's `src` and for `packages/design/src`, so Tailwind sees the kit's classes.
 - npm workspaces link the package. npm has no `workspace:` protocol. The exact version range is checked at implementation time.
 
 ## 5. Tokens
@@ -144,7 +144,7 @@ Contrast is measured with the WCAG 2 formula.
 
 | Text colour | On `paper` | On `black` | Rule |
 | --- | --- | --- | --- |
-| `ink` | 10.5 | 2.0 | Body text on paper. Never on black |
+| `ink` | 10.5 | 1.9 | Body text on paper. Never on black |
 | `black` | 20.4 | — | Body text on paper |
 | `red` | 4.7 | 4.3 | Text on paper. Large text only on black |
 | `brown` | 5.0 | 4.1 | Text on paper. Large text only on black |
