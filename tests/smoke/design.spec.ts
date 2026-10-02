@@ -25,6 +25,15 @@ test.describe('design kit', { tag: '@design' }, () => {
     expect(titles).toContain('Foundations/Colours');
   });
 
+  test('a story page loads', async ({ request }) => {
+    const response = await request.get(
+      `${designUrl}/iframe.html?id=foundations-colours--docs&viewMode=docs`,
+    );
+
+    expect(response.status()).toBe(200);
+    expect(await response.text()).toContain('storybook-root');
+  });
+
   test('version.json reports the deployed build', async ({ request }) => {
     const response = await request.get(`${designUrl}/version.json`);
 

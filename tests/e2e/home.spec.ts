@@ -73,5 +73,15 @@ test.describe('Home page', () => {
       'background-color',
       'rgb(253, 252, 242)',
     );
+    expect(
+      await page.evaluate(async () => {
+        await document.fonts.ready;
+        return [...document.fonts].some(
+          (face) =>
+            face.family.replace(/["']/g, '') === 'DM Mono' &&
+            face.status === 'loaded',
+        );
+      }),
+    ).toBe(true);
   });
 });
