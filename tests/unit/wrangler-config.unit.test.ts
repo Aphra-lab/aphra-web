@@ -14,6 +14,7 @@ interface WorkerConfig {
   routes?: Route[];
   vars?: Record<string, string>;
   assets?: { not_found_handling?: string; run_worker_first?: string[] };
+  r2_buckets?: { binding: string; bucket_name: string }[];
   env?: Record<string, Omit<WorkerConfig, 'env'>>;
 }
 
@@ -32,12 +33,19 @@ describe('wrangler.jsonc', () => {
     });
   });
 
-  it('runs the Worker first for the API and falls back to the app', () => {
+  it('runs the Worker first for the API and the fonts, then falls back to the app', () => {
     expect(config.main).toBe('./worker/index.ts');
     expect(config.assets).toEqual({
       not_found_handling: 'single-page-application',
-      run_worker_first: ['/api', '/api/*'],
+      run_worker_first: ['/api', '/api/*', '/fonts', '/fonts/*'],
     });
+  });
+
+  it('binds the font bucket in production only', () => {
+    expect(config.r2_buckets).toEqual([
+      { binding: 'FONTS', bucket_name: 'aphra-fonts' },
+    ]);
+    expect(config.env?.staging?.r2_buckets).toBeUndefined();
   });
 
   it('keeps staging off the production domain', () => {
