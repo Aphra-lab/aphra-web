@@ -32,6 +32,19 @@ describe('Magnolia webfont in the site', () => {
     },
   );
 
+  it('keeps the MyFonts licence notice as a preserved comment before the fonts', () => {
+    const notice = css.indexOf('/*!');
+
+    expect(notice).toBeGreaterThan(-1);
+    expect(notice).toBeLessThan(css.indexOf('@font-face'));
+    expect(css).toContain('@license');
+    expect(css).toContain('MyFonts Webfont Build ID 3867246');
+    expect(css).toContain(
+      'Webfont: Magnolia Cora Script Regular by Get Studio',
+    );
+    expect(css).toContain('Webfont: Magnolia Cora Script Smooth by Get Studio');
+  });
+
   it('declares no other webfont', () => {
     expect(fontFaces).toHaveLength(2);
   });
