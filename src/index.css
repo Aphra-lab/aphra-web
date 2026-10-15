@@ -2,3 +2,20 @@
 @import '@aphralab/design/tokens.css';
 @source '.';
 @source '../packages/design/src';
+
+/* The Worker serves /fonts on aphralab.com only; elsewhere the token fallback shows. */
+@font-face {
+  font-family: 'Magnolia Cora Script';
+  src:
+    local('Magnolia Cora Script'),
+    url('/fonts/magnolia-cora-script.woff2') format('woff2');
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Magnolia Cora Smooth Script';
+  src:
+    local('Magnolia Cora Smooth Script'),
+    url('/fonts/magnolia-cora-smooth-script.woff2') format('woff2');
+  font-display: swap;
+}
