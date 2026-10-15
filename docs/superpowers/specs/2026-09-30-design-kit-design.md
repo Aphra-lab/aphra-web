@@ -104,7 +104,7 @@ The `exports` map is the public API. Any path outside it is private.
 | `@aphralab/design/assets/*` | SVG and WebP files |
 
 - React is a peer dependency. The site keeps a single React copy.
-- The site's stylesheet imports Tailwind, then `tokens.css`, then adds an `@source` line for `packages/design/src`, so Tailwind sees the kit's classes. The exact Tailwind v4 syntax is checked in the Context7 docs at implementation time.
+- The site's stylesheet imports Tailwind with `source(none)`, then `tokens.css`, then adds `@source` lines for the site's `src` and for `packages/design/src`, so Tailwind sees the kit's classes.
 - npm workspaces link the package. npm has no `workspace:` protocol. The exact version range is checked at implementation time.
 
 ## 5. Tokens
@@ -144,7 +144,7 @@ Contrast is measured with the WCAG 2 formula.
 
 | Text colour | On `paper` | On `black` | Rule |
 | --- | --- | --- | --- |
-| `ink` | 10.5 | 2.0 | Body text on paper. Never on black |
+| `ink` | 10.5 | 1.9 | Body text on paper. Never on black |
 | `black` | 20.4 | — | Body text on paper |
 | `red` | 4.7 | 4.3 | Text on paper. Large text only on black |
 | `brown` | 5.0 | 4.1 | Text on paper. Large text only on black |
@@ -162,13 +162,14 @@ A unit test checks each text pairing used in the components against this table.
 | --- | --- | --- |
 | `font-mono` | DM Mono, then `ui-monospace` | Body text and UI |
 | `font-script` | "Magnolia Cora Script", then a cursive fallback | Live script text |
+| `font-script-smooth` | "Magnolia Cora Smooth Script", then a cursive fallback | Live script text, Smooth style |
 | `text-body` | 17 px, line height 1.05 | Letter text (typewriter look) |
 | `text-caption` | 12 px, capitals, wide tracking | Tagline, age-gate text |
 | `text-nav` | 16 px | MENU, counter |
 
 - The "Aphra" wordmark is an SVG, not text.
 - Sizes are measured on the 1920 px wireframe. No mobile wireframe exists. Below 768 px, body text is 15 px until a mobile design exists.
-- `font-script` shows the fallback on every domain except `aphralab.com`, and on `aphralab.com` until sub-project 2 ships.
+- `font-script` and `font-script-smooth` show the fallback on every domain except `aphralab.com`, and on `aphralab.com` until sub-project 2 ships.
 
 ### 5.5 Layout and motion
 
@@ -199,8 +200,8 @@ A unit test checks each text pairing used in the components against this table.
 
 ### 6.2 Fonts
 
-- DM Mono comes from the `@fontsource/dm-mono` package. It is OFL and already in `.woff2`. No font binary is committed.
-- Magnolia: only the `font-script` token and the fallback (section 8).
+- DM Mono comes from the `@fontsource/dm-mono` package. It is OFL and already in `.woff2`. No webfont file is committed. The DM Mono `.ttf` files in `sources/` are the designer's originals, under the SIL Open Font License.
+- Magnolia: only the `font-script` and `font-script-smooth` tokens and the fallback (section 8).
 
 ### 6.3 Sources (`sources/`)
 

@@ -33,7 +33,7 @@ export function LetterPage({
             {address}
           </address>
         )}
-        <footer className="mx-auto w-full max-w-measure pb-8">
+        <footer className={cn(MEASURE, 'pb-8')}>
           <HealthWarning />
         </footer>
       </div>

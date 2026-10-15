@@ -16,6 +16,8 @@
     'DM Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   --font-script:
     'Magnolia Cora Script', 'Snell Roundhand', 'Segoe Script', cursive;
+  --font-script-smooth:
+    'Magnolia Cora Smooth Script', 'Snell Roundhand', 'Segoe Script', cursive;
 
   --text-body: 1.0625rem;
   --text-body--line-height: 1.05;

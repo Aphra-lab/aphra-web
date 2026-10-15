@@ -28,7 +28,7 @@ export function MaskImage({
       {...accessibility}
       style={style}
       className={cn(
-        'inline-block bg-current [aspect-ratio:var(--mask-ratio)] [mask-image:var(--mask-src)] [mask-position:center] [mask-repeat:no-repeat] [mask-size:contain]',
+        'inline-block bg-current [aspect-ratio:var(--mask-ratio)] [mask-image:var(--mask-src)] [mask-position:center] [mask-repeat:no-repeat] [mask-size:contain] forced-color-adjust-none forced-colors:bg-[CanvasText] [print-color-adjust:exact]',
         className,
       )}
     />
