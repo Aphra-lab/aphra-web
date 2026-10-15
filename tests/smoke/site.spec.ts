@@ -46,6 +46,29 @@ test.describe('site', { tag: '@site' }, () => {
   });
 });
 
+test.describe('Magnolia webfont', { tag: '@site' }, () => {
+  for (const file of [
+    'magnolia-cora-script.woff2',
+    'magnolia-cora-smooth-script.woff2',
+  ]) {
+    test(`/fonts/${file} is served on aphralab.com only`, async ({
+      request,
+    }) => {
+      const response = await request.get(`/fonts/${file}`);
+
+      if (expectedEnvironment === 'production') {
+        expect(response.status()).toBe(200);
+        expect(response.headers()['content-type']).toBe('font/woff2');
+        expect(response.headers()['access-control-allow-origin']).toBe(
+          undefined,
+        );
+      } else {
+        expect(response.status()).toBe(404);
+      }
+    });
+  }
+});
+
 test.describe('redirects', { tag: '@site' }, () => {
   test.skip(
     expectedEnvironment !== 'production',
