@@ -1,0 +1,37 @@
+{
+  "name": "@aphralab/design",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Aphra design kit: tokens, assets and React components",
+  "license": "UNLICENSED",
+  "type": "module",
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "exports": {
+    ".": "./src/index.ts",
+    "./tokens.css": "./src/tokens/tokens.css",
+    "./assets/*": "./assets/*"
+  },
+  "scripts": {
+    "assets": "node scripts/build-assets.mjs && prettier --write src/generated",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build --quiet -o storybook-static && node scripts/write-version.mjs"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "dependencies": {
+    "@fontsource/dm-mono": "^5.3.0",
+    "@radix-ui/react-slot": "^1.3.3"
+  },
+  "devDependencies": {
+    "@storybook/addon-a11y": "^10.6.1",
+    "@storybook/addon-docs": "^10.6.1",
+    "@storybook/react-vite": "^10.6.1",
+    "sharp": "^0.35.5",
+    "storybook": "^10.6.1",
+    "svgo": "^4.1.0"
+  }
+}

@@ -12,3 +12,9 @@ test-results/
 .wrangler
 .dev.vars*
 playwright-report-smoke/
+# Magnolia Cora font files: forbidden in git by the MyFonts licences (design kit spec, section 8)
+*[Mm][Aa][Gg][Nn][Oo][Ll][Ii][Aa]*.otf
+*[Mm][Aa][Gg][Nn][Oo][Ll][Ii][Aa]*.ttf
+*[Mm][Aa][Gg][Nn][Oo][Ll][Ii][Aa]*.woff
+*[Mm][Aa][Gg][Nn][Oo][Ll][Ii][Aa]*.woff2
+packages/design/storybook-static

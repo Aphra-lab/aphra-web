@@ -1,0 +1,7 @@
+export const ELLIPSES = {
+  1: 'M5 21C3 9 36 3 68 4c31 1 58 7 57 18-1 11-34 16-66 15C28 36 7 31 5 21Z',
+  2: 'M9 25C2 13 30 5 63 5c33 0 62 5 61 16-1 12-30 16-63 15C31 35 14 33 9 25Zm-4-6c10-6 30-9 52-9',
+  3: 'M4 18C8 7 40 4 70 5c29 1 55 8 53 19-2 10-33 14-64 12C30 34 2 29 4 18Zm110-12c6 2 10 5 11 9',
+} as const;
+
+export type CircledLinkShape = keyof typeof ELLIPSES;

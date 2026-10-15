@@ -55,7 +55,7 @@ Out of scope: see section 14.
 - Short-lived branches from `dev`, one concern each: `feat/`, `bugfix/`, `support/`, `chore/`.
 - Branch to `dev`: squash merge. The pull request title is a Conventional Commit and becomes the commit message.
 - `dev` to `main`: merge commit, so semantic-release reads every commit.
-- Rulesets on `dev` and `main`: pull request required, required checks, no force push, no deletion.
+- Rulesets on `dev` and `main`: pull request required, required checks, no force push, no deletion. One ruleset per branch enforces the merge method: squash only on `dev`, merge commit only on `main`.
 
 ### 4.2 Application
 
@@ -178,11 +178,11 @@ Phase B, mailbox move to Google Workspace.
 
 | Name | Kind | Content |
 | --- | --- | --- |
-| `CLOUDFLARE_API_TOKEN` | secret | Account-owned token, Aphra account only: Workers Admin (account), Workers Routes Write (zone `aphralab.com`) |
+| `CLOUDFLARE_API_TOKEN` | secret | Account-owned token, Aphra account only, from the "Edit Cloudflare Workers" template, with Workers Routes Write limited to zone `aphralab.com` |
 | `CLOUDFLARE_ACCOUNT_ID` | variable | Aphra account ID |
 | `MAIL_PROVIDER` | variable | `hostinger`, then `google` |
 
-- Workers Admin is needed to create the two Workers. Once both exist, the token can drop to Workers Editor if deploys with an unchanged custom domain still pass.
+- The template permissions created both Workers and the `aphralab.com` custom domain on the first deploys.
 - The owner creates the token and stores it with `gh secret set`. The value goes through no other channel.
 - Deploy jobs run on push events only, so pull requests from forks never see the secrets.
 - GitHub environments `staging` and `production` keep the deploy history.
@@ -248,7 +248,7 @@ Each item is filed only after it reproduces in this scaffold:
 | Loss of access to accounts that sign in with `contact@` (Cloudflare) | Same order: the address never stops receiving mail. |
 | Refund window missed | Phase B ends before the 30-day limit shown in hPanel. |
 | Hostinger API refuses the nameserver change | The owner changes it in hPanel. |
-| CI token broader than needed | Workers Admin drops to Editor after the first deploys. |
+| CI token broader than needed | Account-owned, Aphra account only; Workers Routes limited to `aphralab.com`; the secret exists only in the `staging` and `production` environments, which accept only `dev` and `main`. Unused permission groups (KV and similar) can be removed from the token. |
 | `workers.dev` subdomain taken | Fallback name `aphra-lab`. |
 | Alcohol advertising rules (loi Évin) | Health warning on every page. Future product copy follows the loi Évin content rules. |
 

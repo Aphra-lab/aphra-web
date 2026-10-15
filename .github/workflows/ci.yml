@@ -29,6 +29,7 @@ jobs:
       - run: npm run secretlint
       - run: npm run test:coverage
       - run: npm run build
+      - run: npm run build-storybook --workspace @aphralab/design
 
   e2e:
     needs: checks
@@ -109,6 +110,70 @@ jobs:
         env:
           SMOKE_BASE_URL: https://aphralab.com
           EXPECTED_ENVIRONMENT: production
+          EXPECTED_COMMIT: ${{ github.sha }}
+
+  deploy-design-staging:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/dev'
+    needs: checks
+    runs-on: ubuntu-latest
+    environment:
+      name: staging
+      url: https://aphra-design-staging.aphralab.workers.dev
+    concurrency:
+      group: deploy-design-staging
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run build-storybook --workspace @aphralab/design
+        env:
+          COMMIT_SHA: ${{ github.sha }}
+      - uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+          command: deploy --config packages/design/wrangler.jsonc --env staging
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:smoke -- --grep @design
+        env:
+          SMOKE_BASE_URL: https://aphra-design-staging.aphralab.workers.dev
+          DESIGN_BASE_URL: https://aphra-design-staging.aphralab.workers.dev
+          EXPECTED_COMMIT: ${{ github.sha }}
+
+  deploy-design-production:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: checks
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://design.aphralab.com
+    concurrency:
+      group: deploy-design-production
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run build-storybook --workspace @aphralab/design
+        env:
+          COMMIT_SHA: ${{ github.sha }}
+      - uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+          command: deploy --config packages/design/wrangler.jsonc
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:smoke -- --grep @design
+        env:
+          SMOKE_BASE_URL: https://design.aphralab.com
+          DESIGN_BASE_URL: https://design.aphralab.com
           EXPECTED_COMMIT: ${{ github.sha }}
 
   release:

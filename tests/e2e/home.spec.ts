@@ -59,4 +59,29 @@ test.describe('Home page', () => {
       'Aphra',
     );
   });
+
+  test('styles the health warning with the design kit tokens', async ({
+    page,
+  }) => {
+    await page.goto('/');
+
+    const warning = page.getByText(WARNING);
+    await expect(warning).toHaveCSS('font-size', '12px');
+    await expect(warning).toHaveCSS('color', 'rgb(55, 64, 54)');
+    await expect(warning).toHaveCSS('font-family', /DM Mono/);
+    await expect(page.locator('main')).toHaveCSS(
+      'background-color',
+      'rgb(253, 252, 242)',
+    );
+    expect(
+      await page.evaluate(async () => {
+        await document.fonts.ready;
+        return [...document.fonts].some(
+          (face) =>
+            face.family.replace(/["']/g, '') === 'DM Mono' &&
+            face.status === 'loaded',
+        );
+      }),
+    ).toBe(true);
+  });
 });
